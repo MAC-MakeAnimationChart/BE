@@ -24,52 +24,40 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 🤔 해야할 일
+        ## 🧑‍💻 해야할 일
 
   - type: textarea
     id: task-kim-donghoon
     attributes:
       label: 김동훈
       placeholder: 김동훈님이 해야 할 일을 작성해주세요.
-    validations:
-      required: false
+
+  - type: textarea
+    id: task-jeon-seongyeong
+    attributes:
+      label: 전선경
+      placeholder: 전선경님이 해야 할 일을 작성해주세요.
+
+  - type: textarea
+    id: task-park-jeongmin
+    attributes:
+      label: 박정민
+      placeholder: 박정민님이 해야 할 일을 작성해주세요.
+
+  - type: textarea
+    id: task-go-seongmin
+    attributes:
+      label: 고성민
+      placeholder: 고성민님이 해야 할 일을 작성해주세요.
 
   - type: textarea
     id: task-lee-ganguk
     attributes:
-      label: 전선경
-      placeholder: 전선경님이 해야 할 일을 작성해주세요.
-    validations:
-      required: false
+      label: 이강욱
+      placeholder: 이강욱님이 해야 할 일을 작성해주세요.
 
   - type: textarea
     id: task-kim-yongjun
     attributes:
-      label: 박정민
-      placeholder: 박정민님이 해야 할 일을 작성해주세요.
-    validations:
-      required: false
-
-  - type: textarea
-    id: task-kim-donghyun
-    attributes:
-      label: 고성민
-      placeholder: 고성민님이 해야 할 일을 작성해주세요.
-    validations:
-      required: false
-
-  - type: textarea
-    id: task-bae-jeonghyeon
-    attributes:
-      label: 이강욱
-      placeholder: 이강욱님이 해야 할 일을 작성해주세요.
-    validations:
-      required: false
-
-  - type: textarea
-    id: task-bae-jeonghyeon
-    attributes:
       label: 김용준
       placeholder: 김용준님이 해야 할 일을 작성해주세요.
-    validations:
-      required: false
