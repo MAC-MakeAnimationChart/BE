@@ -41,6 +41,7 @@ AGENT.MD
 AGENTS.md
 API_WORKLOG.MD
 .ai/
+CLAUDE.md
 
 ### Local Spring profiles ###
 src/main/resources/application-local.yml
