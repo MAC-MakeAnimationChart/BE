@@ -1,6 +1,9 @@
 name: Discord Notification
 
 on:
+  issues:
+    types:
+      - opened
 
   pull_request:
     types:
