@@ -1,0 +1,14 @@
+name: Discord Notification
+
+on:
+
+  pull_request:
+    types:
+      - opened
+      - closed
+
+jobs:
+  discord:
+    uses: MAC-MakeAnimationChart/.github/.github/workflows/discord-notify.yml@main
+    secrets:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
