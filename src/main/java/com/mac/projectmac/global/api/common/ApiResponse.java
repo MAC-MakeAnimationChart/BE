@@ -22,7 +22,7 @@ public record ApiResponse<T>(
 
     // 응답을 안하는
     public static ApiResponse<Void> success(String code, String message) {
-        return new ApiResponse<>(Instant.now(), 201, code, message, null);
+        return new ApiResponse<>(Instant.now(), 200, code, message, null);
     }
 
     // 비동기 삭제 시 204 추후 사용
