@@ -20,6 +20,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RestControllerAdvice
@@ -35,8 +36,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(e.getHttpStatus())
                 .body(ApiErrorResponse.of(e.getHttpStatus(), e.getErrorCode(), request.getRequestURI()));
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException e,
+            HttpServletRequest request
+    ) {
+        List<ValidationError> errors = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(fieldError -> new ValidationError(
+                        fieldError.getField(),
+                        fieldError.getDefaultMessage()
+                ))
+                .toList();
+
+        log.warn("[400] 요청값 검증 실패 - path: {}, errors: {}", request.getRequestURI(), errors);
+
+        return ResponseEntity.badRequest()
+                .body(ApiErrorResponse.validationOf(
+                        400,
+                        "COMMON-VALIDATION-FAILED",
+                        "요청값 검증에 실패했습니다.",
+                        request.getRequestURI(),
+                        errors
+                ));
+    }
+
     @ExceptionHandler({
-            MethodArgumentNotValidException.class,
             MissingServletRequestParameterException.class,
             MissingServletRequestPartException.class,
             MethodArgumentTypeMismatchException.class,
