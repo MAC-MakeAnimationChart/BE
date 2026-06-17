@@ -95,7 +95,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleException(
             Exception e, HttpServletRequest request) {
-        log.error("[500] 예상치 못한 예외 - path: {}", request.getRequestURI(), e);
+        log.error("[500] 예상하지 못한 예외 - path: {}", request.getRequestURI(), e);
         String message = isDev() ? e.getMessage() : "서버 오류가 발생했습니다.";
         return ResponseEntity.status(500)
                 .body(ApiErrorResponse.of(500, "INTERNAL_ERROR", message, request.getRequestURI()));
@@ -125,4 +125,3 @@ public class GlobalExceptionHandler {
         }
     }
 }
-

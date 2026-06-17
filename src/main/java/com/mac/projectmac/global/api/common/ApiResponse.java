@@ -20,12 +20,10 @@ public record ApiResponse<T>(
         return new ApiResponse<>(Instant.now(), 201, code, message, data);
     }
 
-    // 응답을 안하는
+    // 응답 본문이 없는 성공 응답
     public static ApiResponse<Void> success(String code, String message) {
         return new ApiResponse<>(Instant.now(), 200, code, message, null);
     }
 
-    // 비동기 삭제 시 204 추후 사용
-    // 일반 삭제 시 프론트로 반환할 값 없음.
-
+    // 비동기 삭제 등 204 응답은 추후 필요 시 별도 메서드로 제공
 }
