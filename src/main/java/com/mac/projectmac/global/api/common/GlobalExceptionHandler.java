@@ -17,6 +17,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.util.Arrays;
@@ -88,6 +89,19 @@ public class GlobalExceptionHandler {
                         400,
                         "COMMON-BAD-REQUEST",
                         message,
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiErrorResponse> handleMaxUploadSizeExceeded(
+            MaxUploadSizeExceededException e, HttpServletRequest request) {
+        log.warn("[413] 업로드 용량 초과 - path: {}", request.getRequestURI());
+        return ResponseEntity.status(413)
+                .body(ApiErrorResponse.of(
+                        413,
+                        "FILE_SIZE_EXCEEDED",
+                        "파일 용량이 허용 한도를 초과했습니다.",
                         request.getRequestURI()
                 ));
     }
