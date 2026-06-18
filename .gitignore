@@ -44,3 +44,6 @@ API_WORKLOG.MD
 ### Local Spring profiles ###
 src/main/resources/application-local.yml
 src/main/resources/application-local.yaml
+
+### Local file storage (LocalFileStorage fallback) ###
+uploads/
