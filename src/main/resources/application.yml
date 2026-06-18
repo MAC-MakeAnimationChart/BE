@@ -1,6 +1,6 @@
 spring:
   application:
-    name: Code-Bomba-LMS
+    name: projectmac
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
