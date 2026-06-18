@@ -3,3 +3,63 @@ spring:
     name: Code-Bomba-LMS
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+# GCS 설정. gcp.storage.bucket 이 없으면 LocalFileStorage 폴백이 동작한다.
+# (bucket 은 운영(prod) 프로파일에서만 주입 → 로컬은 자동으로 로컬 저장)
+gcp:
+  project-id: ${GCP_PROJECT_ID:}
+  storage:
+    data-source-prefix: data_source
+  credentials:
+    location: ${GCP_CREDENTIALS_LOCATION:}
+
+---
+# 로컬: H2 인메모리 (MODE=MySQL 호환 모드 → 운영 전환 시 SQL 차이 최소화)
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:h2:mem:projectmac;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+
+---
+# 운영: MySQL (코드 변경 없이 환경변수만으로 전환)
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DB_URL}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+# 운영에서만 GCS 버킷 주입 → GcsFileStorage 활성화
+gcp:
+  storage:
+    bucket: ${GCP_STORAGE_BUCKET}
