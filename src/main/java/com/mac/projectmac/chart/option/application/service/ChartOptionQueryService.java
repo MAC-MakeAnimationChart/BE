@@ -1,0 +1,46 @@
+package com.mac.projectmac.chart.option.application.service;
+
+import com.mac.projectmac.chart.option.application.port.ProjectExistencePort;
+import com.mac.projectmac.chart.option.application.usecase.GetChartOptionUseCase;
+import com.mac.projectmac.chart.option.domain.exception.ChartOptionErrorCode;
+import com.mac.projectmac.chart.option.domain.model.ChartOption;
+import com.mac.projectmac.chart.option.domain.repository.ChartOptionRepository;
+import com.mac.projectmac.global.domain.common.error.exception.NotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class ChartOptionQueryService implements GetChartOptionUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(ChartOptionQueryService.class);
+
+    private final ChartOptionRepository chartOptionRepository;
+    private final ProjectExistencePort projectExistencePort;
+
+    // 프로젝트 검증 후 저장된 활성 차트 옵션을 조회한다.
+    @Override
+    public ChartOption getByProjectId(Long projectId) {
+        validateProjectExists(projectId);
+
+        ChartOption chartOption = chartOptionRepository.findActiveByProjectId(projectId)
+                .orElseThrow(() -> new NotFoundException(ChartOptionErrorCode.CHART_OPTION_NOT_FOUND));
+        log.info("[ChartOptionQueryService] found chart option - projectId: {}, chartOptionId: {}",
+                projectId,
+                chartOption.getChartOptionId()
+        );
+
+        return chartOption;
+    }
+
+    // 프로젝트 번호가 실제 프로젝트 테이블에 존재하는지 확인한다.
+    private void validateProjectExists(Long projectId) {
+        if (!projectExistencePort.existsByProjectId(projectId)) {
+            throw new NotFoundException(ChartOptionErrorCode.PROJECT_NOT_FOUND);
+        }
+    }
+}
