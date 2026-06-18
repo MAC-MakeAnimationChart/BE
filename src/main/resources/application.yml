@@ -4,6 +4,38 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
+mac:
+  logging:
+    body-max-length: 2000
+    slow-method:
+      controller-threshold-ms: 500
+      service-threshold-ms: 1000
+    exclude-urls:
+      - /api/v1/health
+      - /actuator/**
+      - /favicon.ico
+
+  p6spy:
+    slow-query-threshold-ms: 1000
+
+  alert:
+    enabled: true
+    throttle-minutes: 1
+    thread-pool:
+      core-size: 2
+      max-size: 5
+      queue-capacity: 100
+    discord:
+      webhook-url: ${DISCORD_WEBHOOK_URL:}
+    slack:
+      webhook-url: ${SLACK_WEBHOOK_URL:}
+    notify-levels:
+      - ERROR
+    mask-fields:
+      - password
+      - token
+      - cardNumber
+      - Authorization
   servlet:
     multipart:
       max-file-size: 50MB
