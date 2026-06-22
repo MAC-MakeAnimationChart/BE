@@ -16,12 +16,11 @@
 | 도메인 | 접두어 | 실제 코드 |
 |--------|--------|----------|
 | `chart.option` | `CHO` | `CHO-001`(옵션 없음), `CHO-002`(미지원 차트 타입), `CHO-003`(잘못된 dataMapping), `CHO-004`(잘못된 styleOption), `CHO-409`(이미 존재) |
+| `datasource` | `DS` | `DS-001`(요청 JSON 해석 불가), `DS-002`(미지원 소스 타입), `DS-003`(업로드 파일 필요), `DS-004`(파일 저장 실패) |
 | `project` | `PRJ` | `PRJ-001`(프로젝트 없음) — 현재 `chart.option`의 `ChartOptionErrorCode`에 정의됨 |
 | `auth`(공통 인증) | `AUT` | `AUT-015`(403 권한 없음), `AUT-016`(401 인증 필요) — `GlobalExceptionHandler`가 발급 |
 
-> ⚠️ 두 가지 예외(현 코드 기준, 추후 정리 대상):
-> - `datasource`는 아직 `{DOMAIN}-{NNN}`이 아니라 **이름 그대로** 코드를 쓴다: `INVALID_REQUEST`, `UNSUPPORTED_SOURCE_TYPE`, `UPLOAD_FILE_REQUIRED`, `FILE_STORAGE_FAILED`.
-> - `project.ProjectErrorCode`는 프로젝트가 아니라 **채팅방 코드(`CHT-001~003`)**를 담고 있다(타 출처 잔재).
+> ⚠️ `project.ProjectErrorCode`는 프로젝트가 아니라 **채팅방 코드(`CHT-001~003`)**를 담고 있다(타 출처 잔재, 정리 대상).
 
 ### 공통 코드 (`GlobalExceptionHandler`)
 

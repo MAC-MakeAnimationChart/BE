@@ -35,7 +35,7 @@ Spring Boot 기반이며, 도메인별 책임 분리와 헥사고날(포트/어�
 ```text
 src/main/java/com/mac/projectmac/
  ├─ chart/option/   # 차트 옵션 (presentation/application/domain/infrastructure)
- ├─ datasource/     # 데이터소스 업로드·저장 (api/application/domain/infrastructure)
+ ├─ datasource/     # 데이터소스 업로드·저장 (presentation/application/domain/infrastructure)
  ├─ project/        # 프로젝트 — 현재 ProjectErrorCode만 존재(도메인 모델 미구현)
  ├─ admin/          # (예정, readme 플레이스홀더)
  ├─ auth/           # (예정, readme 플레이스홀더)
@@ -55,7 +55,7 @@ domain-name/
  └─ infrastructure/     # JPA Entity, Repository Adapter, 외부 연동(스토리지 등)
 ```
 
-> `datasource`는 `presentation` 대신 `api` 패키지명을 쓰고, `global`은 `api/domain/infrastructure` 구성이다.
+> `global`은 공통 인프라라 `presentation` 없이 `api/domain/infrastructure` 구성이다.
 
 ## 주요 API 경로
 

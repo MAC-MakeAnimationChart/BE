@@ -1,11 +1,12 @@
-package com.mac.projectmac.datasource.application;
+package com.mac.projectmac.datasource.application.service;
 
 import com.mac.projectmac.datasource.application.command.CreateDataSourceCommand;
 import com.mac.projectmac.datasource.application.port.StoreFilePort;
+import com.mac.projectmac.datasource.application.usecase.CreateDataSourceUseCase;
 import com.mac.projectmac.datasource.domain.exception.DataSourceErrorCode;
 import com.mac.projectmac.datasource.domain.model.DataSource;
 import com.mac.projectmac.datasource.domain.model.StoredFile;
-import com.mac.projectmac.datasource.infrastructure.persistence.DataSourceRepository;
+import com.mac.projectmac.datasource.domain.repository.DataSourceRepository;
 import com.mac.projectmac.global.domain.common.error.exception.ExternalServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +18,13 @@ import java.io.IOException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CreateDataSourceService {
+@Transactional
+public class CreateDataSourceService implements CreateDataSourceUseCase {
 
     private final StoreFilePort storeFilePort;
     private final DataSourceRepository dataSourceRepository;
 
-    @Transactional
+    @Override
     public DataSource create(CreateDataSourceCommand command) {
         // TODO: 실제 인증/프로젝트 권한 확인 연결 (현재 트레이서는 통과)
 

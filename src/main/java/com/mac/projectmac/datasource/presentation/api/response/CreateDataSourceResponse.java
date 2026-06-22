@@ -1,4 +1,4 @@
-package com.mac.projectmac.datasource.api.dto;
+package com.mac.projectmac.datasource.presentation.api.response;
 
 import com.mac.projectmac.datasource.domain.model.DataSource;
 

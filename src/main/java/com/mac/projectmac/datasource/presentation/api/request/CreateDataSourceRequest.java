@@ -1,4 +1,4 @@
-package com.mac.projectmac.datasource.api.dto;
+package com.mac.projectmac.datasource.presentation.api.request;
 
 import com.mac.projectmac.datasource.domain.exception.DataSourceErrorCode;
 import com.mac.projectmac.global.domain.common.error.exception.ValidationException;
