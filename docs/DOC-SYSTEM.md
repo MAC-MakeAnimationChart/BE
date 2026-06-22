@@ -7,18 +7,12 @@
 
 | 문서 | 경로 | 구분 |
 |------|------|------|
-| 프로젝트 규칙 (메인) | `AGENTS.md` (루트 `CLAUDE.md`는 얇은 포인터) | 공용·커밋 (PL 소유) |
 | 문서 체계 (이 파일) | `docs/DOC-SYSTEM.md` | 공용·커밋 (PL 소유) |
 | 교차 도메인 경계·관계 | `docs/CONTEXT-MAP.md` | 공용·커밋 (PL 소유) |
 | 프로젝트 개요·실행 | `docs/README.md` | 공용·커밋 |
 | 팀 결정·이유 | `docs/adr/` | 공용·커밋 (PL 소유) |
 | 팀 규약(에러코드 등) | `docs/CONVENTION.md` + `docs/convention/` | 공용·커밋 |
-| 커밋·PR 양식·실행 | `AGENTS.md`(§PR·커밋 양식) + `.github/pull_request_template.md` | 공용·커밋 |
-| AI 응답 형식 | `AGENTS.md`(§🎨 응답 스타일 가이드, 인라인) | 공용·커밋 |
 | 도메인 불변 핵심(역할·용어) | `src/.../<도메인>/readme.md` | 공용·커밋 (오너) |
-| 개인 진행상황·도메인 상세 | `.ai/local/` | 개인·git-ignore |
-
-> `.ai/local/` 은 통째로 git-ignore. 각자 작업메모(세컨드브레인 — STATE·API·WORKLOG·도메인 상세)를 여기에 둔다. 커밋되지 않는다.
 
 ## owns-what (한 사실은 한 곳에만)
 
@@ -30,7 +24,6 @@
 | **불변 핵심** (도메인 역할, 용어/모델) | `<도메인>/readme.md` | README ✅ — 바뀌면 덮어씀 |
 | **교차 도메인** (경계·누가 누구를 호출/이벤트) | `docs/CONTEXT-MAP.md` | README ❌ 링크만 — 단일 소스 |
 | **결정·이유** (되돌리기 어렵고 대안이 있던 선택) | `docs/adr/` | README ❌ — append-only, 바뀌면 새 ADR로 supersede |
-| **도메인 깊은 설명·작업맥락·핵심 흐름** | `.ai/local/` (개인·git-ignore) | README ❌ — 오너 개인 책임 |
 
 > 판단: "단어/정의"면 README·CONTEXT-MAP, "왜 그렇게 했나"면 ADR, "자주 바뀌는 구조"면 코드(안 적음).
 

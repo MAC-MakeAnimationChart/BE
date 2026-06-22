@@ -53,7 +53,7 @@ chart/option/presentation/api/
 
 작성 규칙(상수 네이밍·private 생성자)은 [`code.md`](code.md).
 
-> ⚠️ 현 코드 기준 divergence: `chart.option`은 코드 문자열을 `{DOMAIN}-{ACTION}`(예: `CHO-RETRIEVED`)이 아니라 **`{DOMAIN}-{HTTPSTATUS}`(`CHO-200`/`CHO-201`)**로 쓴다. `datasource`는 별도 상수 클래스 없이 컨트롤러에서 `"DATA-SOURCE-CREATED"` 리터럴을 직접 쓴다. 신규 작성 시 한쪽으로 통일 권장.
+> ⚠️ 현 코드 기준: 코드 문자열은 `{DOMAIN}-{ACTION}`(예: `CHO-RETRIEVED`)이 아니라 **`{DOMAIN}-{HTTPSTATUS}`**로 쓴다 (`chart.option` → `CHO-200`/`CHO-201`, `datasource` → `DS-201`).
 
 ## 성공 응답 포맷
 

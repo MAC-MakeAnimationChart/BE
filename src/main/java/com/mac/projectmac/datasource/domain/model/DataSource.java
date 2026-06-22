@@ -1,63 +1,27 @@
 package com.mac.projectmac.datasource.domain.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
-@Entity
-@Table(name = "data_sources")
-@EntityListeners(AuditingEntityListener.class)
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DataSource {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long ownerId;
-
     private Long projectId;
-
-    @Enumerated(EnumType.STRING)
     private SourceType sourceType;
-
     private String fileName;
-
-    @Column(length = 1000)
     private String filePath;
-
     private long fileSize;
-
     private String mimeType;
-
-    @Enumerated(EnumType.STRING)
     private SourceStatus status;
-
-    @CreatedDate
-    @Column(updatable = false)
     private Instant createdAt;
-
-    @LastModifiedDate
     private Instant updatedAt;
-
     private Instant deletedAt;
 
     private DataSource(
+            Long id,
             Long ownerId,
             Long projectId,
             SourceType sourceType,
@@ -65,8 +29,12 @@ public class DataSource {
             String filePath,
             long fileSize,
             String mimeType,
-            SourceStatus status
+            SourceStatus status,
+            Instant createdAt,
+            Instant updatedAt,
+            Instant deletedAt
     ) {
+        this.id = id;
         this.ownerId = ownerId;
         this.projectId = projectId;
         this.sourceType = sourceType;
@@ -75,6 +43,9 @@ public class DataSource {
         this.fileSize = fileSize;
         this.mimeType = mimeType;
         this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
     }
 
     /** 업로드 직후 파싱 대기(PENDING) 상태로 생성한다. */
@@ -88,6 +59,7 @@ public class DataSource {
             String mimeType
     ) {
         return new DataSource(
+                null,
                 ownerId,
                 projectId,
                 sourceType,
@@ -95,7 +67,41 @@ public class DataSource {
                 filePath,
                 fileSize,
                 mimeType,
-                SourceStatus.PENDING
+                SourceStatus.PENDING,
+                null,
+                null,
+                null
+        );
+    }
+
+    /** 영속성 계층에서 조회한 값을 데이터소스 도메인 객체로 복원한다. */
+    public static DataSource restore(
+            Long id,
+            Long ownerId,
+            Long projectId,
+            SourceType sourceType,
+            String fileName,
+            String filePath,
+            long fileSize,
+            String mimeType,
+            SourceStatus status,
+            Instant createdAt,
+            Instant updatedAt,
+            Instant deletedAt
+    ) {
+        return new DataSource(
+                id,
+                ownerId,
+                projectId,
+                sourceType,
+                fileName,
+                filePath,
+                fileSize,
+                mimeType,
+                status,
+                createdAt,
+                updatedAt,
+                deletedAt
         );
     }
 

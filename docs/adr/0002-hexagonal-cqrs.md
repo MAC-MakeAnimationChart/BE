@@ -15,7 +15,7 @@ MAC는 여러 도메인이 한 모노레포에 있다. 도메인 간 결합을 �
 
 ## 근거
 
-- `chart.option`이 4계층(`presentation/application/domain/infrastructure`) + `application/{usecase,command,port,service}` 구조를 따른다. `datasource`도 4계층(단, `presentation` 대신 `api` 패키지명)을 따른다.
+- `chart.option`·`datasource` 모두 4계층(`presentation/application/domain/infrastructure`) + `application/{usecase,command,port,service}` 구조를 따른다.
 - 포트로 격리하면 BC 간 통신(→ ADR-0003)과 infra 교체(스토리지 `GCS↔Local`, `ProjectExistencePort`의 native query↔리포지토리)가 쉬워진다.
 
 ## chart 하위 도메인 분할 (의도된 설계)

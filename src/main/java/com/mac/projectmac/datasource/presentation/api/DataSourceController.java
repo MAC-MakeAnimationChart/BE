@@ -1,13 +1,13 @@
-package com.mac.projectmac.datasource.api;
+package com.mac.projectmac.datasource.presentation.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mac.projectmac.datasource.api.dto.CreateDataSourceRequest;
-import com.mac.projectmac.datasource.api.dto.CreateDataSourceResponse;
-import com.mac.projectmac.datasource.application.CreateDataSourceService;
 import com.mac.projectmac.datasource.application.command.CreateDataSourceCommand;
+import com.mac.projectmac.datasource.application.usecase.CreateDataSourceUseCase;
 import com.mac.projectmac.datasource.domain.exception.DataSourceErrorCode;
 import com.mac.projectmac.datasource.domain.model.DataSource;
 import com.mac.projectmac.datasource.domain.model.SourceType;
+import com.mac.projectmac.datasource.presentation.api.request.CreateDataSourceRequest;
+import com.mac.projectmac.datasource.presentation.api.response.CreateDataSourceResponse;
 import com.mac.projectmac.global.api.common.ApiResponse;
 import com.mac.projectmac.global.domain.common.error.exception.ExternalServiceException;
 import com.mac.projectmac.global.domain.common.error.exception.ValidationException;
@@ -32,7 +32,7 @@ public class DataSourceController {
     // TODO: 실제 인증 연결 시 SecurityContext 의 현재 유저로 교체
     private static final Long STUB_OWNER_ID = 1L;
 
-    private final CreateDataSourceService createDataSourceService;
+    private final CreateDataSourceUseCase createDataSourceUseCase;
     private final ObjectMapper objectMapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -53,12 +53,12 @@ public class DataSourceController {
                 file.getSize()
         );
 
-        DataSource created = createDataSourceService.create(command);
+        DataSource created = createDataSourceUseCase.create(command);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.created(
-                        "DATA-SOURCE-CREATED",
-                        "데이터셋 추가 성공",
+                        DataSourceResponseCode.CREATED,
+                        DataSourceResponseMessage.CREATED,
                         CreateDataSourceResponse.from(created)
                 ));
     }
