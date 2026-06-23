@@ -20,13 +20,13 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<NotificationSettingsResponse>> updateSettings(
             @RequestBody NotificationSettingsRequest request) {
         NotificationSettingsResponse result = notificationService.updateSettings(request);
-        return ResponseEntity.ok(ApiResponse.success("NOTIFICATION-SUCCESS", "알림 설정이 업데이트되었습니다.", result));
+        return ResponseEntity.ok(ApiResponse.success(LogResponseCode.OK, LogResponseMessage.NOTIFICATION_UPDATED, result));
     }
 
     @PostMapping("/test")
     public ResponseEntity<ApiResponse<Void>> sendTestNotification(
             @RequestBody TestNotificationRequest request) {
         notificationService.sendTestNotification(request.getChannel());
-        return ResponseEntity.ok(ApiResponse.success("NOTIFICATION-SUCCESS", "테스트 알림이 발송되었습니다.", null));
+        return ResponseEntity.ok(ApiResponse.success(LogResponseCode.OK, LogResponseMessage.NOTIFICATION_SENT, null));
     }
 }

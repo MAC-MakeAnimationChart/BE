@@ -32,13 +32,13 @@ public class LogAdminController {
     ) {
         Page<AppLogResponse> result = logAdminService.getLogs(
                 level, startDate, endDate, userId, requestId, keyword, page, size);
-        return ResponseEntity.ok(ApiResponse.success("LOG-SUCCESS", "로그 목록 조회 성공", result));
+        return ResponseEntity.ok(ApiResponse.success(LogResponseCode.OK, LogResponseMessage.LOGS_OK, result));
     }
 
     @GetMapping("/logs/{logId}")
     public ResponseEntity<ApiResponse<AppLogResponse>> getLog(@PathVariable Long logId) {
         AppLogResponse result = logAdminService.getLog(logId);
-        return ResponseEntity.ok(ApiResponse.success("LOG-SUCCESS", "로그 조회 성공", result));
+        return ResponseEntity.ok(ApiResponse.success(LogResponseCode.OK, LogResponseMessage.LOG_OK, result));
     }
 
     @GetMapping("/logs/slow-queries")
@@ -51,6 +51,6 @@ public class LogAdminController {
     ) {
         Page<SlowQueryLogResponse> result = logAdminService.getSlowQueries(
                 thresholdMs, startDate, endDate, page, size);
-        return ResponseEntity.ok(ApiResponse.success("LOG-SUCCESS", "슬로우 쿼리 조회 성공", result));
+        return ResponseEntity.ok(ApiResponse.success(LogResponseCode.OK, LogResponseMessage.SLOW_QUERIES_OK, result));
     }
 }

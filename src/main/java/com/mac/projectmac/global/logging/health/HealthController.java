@@ -1,6 +1,8 @@
 package com.mac.projectmac.global.logging.health;
 
 import com.mac.projectmac.global.api.common.ApiResponse;
+import com.mac.projectmac.global.logging.admin.controller.LogResponseCode;
+import com.mac.projectmac.global.logging.admin.controller.LogResponseMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,7 +34,7 @@ public class HealthController {
                     .timestamp(Instant.now())
                     .build();
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body(new ApiResponse<>(Instant.now(), 503, "HEALTH_DB_DOWN", "DB 연결에 실패했습니다.", down));
+                    .body(new ApiResponse<>(Instant.now(), 503, "LOG-503", "DB 연결에 실패했습니다.", down));
         }
 
         HealthResponse up = HealthResponse.builder()
@@ -40,7 +42,7 @@ public class HealthController {
                 .db("UP")
                 .timestamp(Instant.now())
                 .build();
-        return ResponseEntity.ok(ApiResponse.success("HEALTH-OK", "서버 정상", up));
+        return ResponseEntity.ok(ApiResponse.success(LogResponseCode.OK, LogResponseMessage.HEALTH_OK, up));
     }
 
     private boolean isDbUp() {
