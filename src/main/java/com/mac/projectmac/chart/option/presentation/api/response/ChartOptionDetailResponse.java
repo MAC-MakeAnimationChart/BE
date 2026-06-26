@@ -5,16 +5,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mac.projectmac.chart.option.domain.model.ChartOption;
 import com.mac.projectmac.chart.option.domain.model.ChartType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
+@Schema(description = "차트 옵션 상세 조회 응답")
 public record ChartOptionDetailResponse(
+        @Schema(description = "차트 옵션 식별자", example = "5")
         Long chartOptionId,
+        @Schema(description = "프로젝트 식별자", example = "1")
         Long projectId,
+        @Schema(description = "차트 타입", example = "BAR")
         ChartType chartType,
+        @Schema(description = "차트 필드와 데이터 컬럼 매핑")
         JsonNode dataMapping,
+        @Schema(description = "차트 스타일 옵션")
         JsonNode styleOption,
+        @Schema(description = "기본 옵션 구조 보정 여부", example = "true")
         boolean defaultApplied,
+        @Schema(description = "수정 일시")
         LocalDateTime updatedAt
 ) {
 
