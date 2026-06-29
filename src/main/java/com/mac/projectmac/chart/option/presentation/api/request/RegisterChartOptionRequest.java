@@ -1,8 +1,11 @@
 package com.mac.projectmac.chart.option.presentation.api.request;
 
 import com.mac.projectmac.chart.option.application.command.RegisterChartOptionCommand;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "차트 옵션 최초 생성 요청")
 public record RegisterChartOptionRequest(
+        @Schema(description = "차트 타입", example = "BAR", requiredMode = Schema.RequiredMode.REQUIRED)
         String chartType
 ) {
 
