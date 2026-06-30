@@ -1,5 +1,6 @@
 package com.mac.projectmac.auth.presentation.api.request;
 
+import com.mac.projectmac.auth.application.command.RegisterCommand;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -27,4 +28,8 @@ public class RegisterRequest {
 
     @NotBlank(message = "닉네임은 필수입니다.")
     private String nickname;
+
+        public RegisterCommand toCommand() {
+        return new RegisterCommand(loginId, email, password, name, nickname);
+    }
 }

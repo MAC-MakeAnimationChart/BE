@@ -9,6 +9,7 @@ import com.mac.projectmac.auth.infrastructure.persistence.UserJpaRepository;
 import com.mac.projectmac.global.domain.common.error.exception.NotFoundException;
 import com.mac.projectmac.global.domain.common.error.exception.ValidationException;
 import lombok.RequiredArgsConstructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

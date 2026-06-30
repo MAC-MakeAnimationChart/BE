@@ -5,6 +5,7 @@ import com.mac.projectmac.admin.presentation.api.request.AccountStatusRequest;
 import com.mac.projectmac.admin.presentation.api.response.AccountStatusResponse;
 import com.mac.projectmac.global.api.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +32,19 @@ public class AdminController {
     private final AdminService adminService;
 
     @Operation(summary = "계정 상태 변경")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "상태 변경 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "AUT-001: 유저 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "접근 권한 없음 (ADMIN만 허용)")
+    })
     @PatchMapping("/users/{userId}/status")
     public ResponseEntity<ApiResponse<AccountStatusResponse>> changeStatus(
             @PathVariable Long userId,
             @Valid @RequestBody AccountStatusRequest request) {
         log.info("[AdminController] changeStatus - userId: {}, status: {}", userId, request.getStatus());
         return ResponseEntity.ok(ApiResponse.success(
-                CODE_OK, "계정 상태 변경 성공", adminService.changeStatus(userId, request)));
+                AdminResponseCode.OK,
+                AdminResponseMessage.CHANGE_STATUS,
+                AccountStatusResponse.from(adminService.changeStatus(userId, request.getStatus()))));
     }
 }

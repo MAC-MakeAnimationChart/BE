@@ -15,6 +15,7 @@ public enum AuthErrorCode implements ErrorCode {
     USER_ALREADY_BANNED     ("AUT-005", "이미 정지된 계정입니다."),
 
     AUTH_PASSWORD_MISMATCH  ("AUT-006", "비밀번호가 올바르지 않습니다."),
+    AUTH_UNAUTHENTICATED    ("AUT-016", "인증이 필요합니다."),
     AUTH_TOKEN_EXPIRED      ("AUT-007", "인증 토큰이 만료되었습니다."),
     AUTH_REFRESH_NOT_FOUND  ("AUT-008", "Refresh Token이 존재하지 않습니다."),
     AUTH_REFRESH_MISMATCH   ("AUT-009", "Refresh Token이 일치하지 않습니다."),
