@@ -1,6 +1,6 @@
 package com.mac.projectmac.auth.infrastructure.security;
 
-import com.mac.projectmac.auth.domain.repository.TokenRepository;
+import com.mac.projectmac.auth.business.repository.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

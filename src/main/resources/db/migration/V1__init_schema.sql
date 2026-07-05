@@ -5,6 +5,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     user_name VARCHAR(50) NOT NULL,
     name VARCHAR(50) NOT NULL,
+    nickname VARCHAR(50) NOT NULL,
     role VARCHAR(30) NOT NULL DEFAULT 'USER',
     social_type ENUM('LOCAL', 'GOOGLE', 'KAKAO', 'NAVER') NULL,
     status ENUM('ACTIVE', 'DORMANT', 'BANNED') NOT NULL DEFAULT 'ACTIVE',
@@ -14,7 +15,8 @@ CREATE TABLE users (
     CONSTRAINT pk_users PRIMARY KEY (user_id),
     CONSTRAINT uk_users_login_id UNIQUE (login_id),
     CONSTRAINT uk_users_email UNIQUE (email),
-    CONSTRAINT uk_users_name UNIQUE (name)  
+    CONSTRAINT uk_users_name UNIQUE (name),
+    CONSTRAINT uk_users_nickname UNIQUE (nickname)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE folders (

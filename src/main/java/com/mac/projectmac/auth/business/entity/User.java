@@ -71,7 +71,7 @@ public class User {
         this.nickname   = nickname;
         this.role       = role       != null ? role       : UserRole.USER;
         this.status     = status     != null ? status     : UserStatus.ACTIVE;
-        this.socialType = socialType != null ? socialType : SocialType.EMAIL;
+        this.socialType = socialType != null ? socialType : SocialType.LOCAL;
         this.isDeleted  = false;
     }
 
@@ -91,6 +91,6 @@ public class User {
     }
 
     public enum UserRole   { USER, ADMIN }
-    public enum UserStatus { ACTIVE, BANNED }
-    public enum SocialType { EMAIL, KAKAO, GOOGLE }
+    public enum UserStatus { ACTIVE, DORMANT, BANNED }
+    public enum SocialType { LOCAL, KAKAO, GOOGLE, NAVER }
 }

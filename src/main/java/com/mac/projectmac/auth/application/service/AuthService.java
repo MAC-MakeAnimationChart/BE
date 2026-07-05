@@ -40,15 +40,15 @@ public class AuthService {
     public User register(RegisterCommand command) {
         if (userRepository.existsByEmail(command.email()))
             throw new ConflictException(AuthErrorCode.USER_EMAIL_DUPLICATED);
-        if (userRepository.existsByName(command.name()))
+        if (userRepository.existsByNickname(command.nickname()))
             throw new ConflictException(AuthErrorCode.USER_NICKNAME_DUPLICATED);
 
         User user = User.builder()
                 .loginId(command.loginId())
                 .email(command.email())
                 .password(passwordEncoder.encode(command.password()))
-                .userName(command.userName())
                 .name(command.name())
+                .nickname(command.nickname())
                 .build();
 
         User saved = userRepository.save(user);
@@ -60,7 +60,7 @@ public class AuthService {
     public boolean check(String type, String value) {
         return switch (type) {
             case "email" -> userRepository.existsByEmail(value);
-            case "name"  -> userRepository.existsByName(value);
+            case "nickname"  -> userRepository.existsByNickname(value);
             default      -> throw new ValidationException(AuthErrorCode.INVALID_CHECK_TYPE);
         };
     }

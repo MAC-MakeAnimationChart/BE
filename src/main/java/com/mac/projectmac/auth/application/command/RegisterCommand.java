@@ -4,6 +4,6 @@ public record RegisterCommand(
         String loginId,
         String email,
         String password,
-        String userName,
-        String name
+        String name,
+        String nickname
 ) {}
