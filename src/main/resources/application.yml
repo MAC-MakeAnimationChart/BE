@@ -11,12 +11,6 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
-
 mac:
   logging:
     body-max-length: 2000
@@ -62,19 +56,9 @@ mac:
 
 # GCS 설정. gcp.storage.bucket 이 없으면 LocalFileStorage 폴백이 동작한다.
 # (bucket 은 운영(prod) 프로파일에서만 주입 → 로컬은 자동으로 로컬 저장)
-
 gcp:
   project-id: ${GCP_PROJECT_ID:}
   storage:
     data-source-prefix: data_source
   credentials:
     location: ${GCP_CREDENTIALS_LOCATION:}
-
-jwt:
-  secret: ${JWT_SECRET}
-  access-expire-ms: 3600000
-  refresh-expire-ms: 604800000
-
-cors:
-  allowed-origins:
-    - http://localhost:3000
