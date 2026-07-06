@@ -1,6 +1,6 @@
 package com.mac.projectmac.auth.infrastructure.config;
 
-import com.mac.projectmac.auth.business.repository.TokenRepository;
+import com.mac.projectmac.auth.domain.repository.TokenRepository;
 import com.mac.projectmac.auth.infrastructure.security.JwtAuthenticationFilter;
 import com.mac.projectmac.auth.infrastructure.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;

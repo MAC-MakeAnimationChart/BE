@@ -2,9 +2,9 @@ package com.mac.projectmac.admin.application.service;
 
 import com.mac.projectmac.admin.presentation.api.request.AccountStatusRequest;
 import com.mac.projectmac.admin.presentation.api.response.AccountStatusResponse;
-import com.mac.projectmac.auth.business.entity.User;
-import com.mac.projectmac.auth.business.exception.AuthErrorCode;
-import com.mac.projectmac.auth.business.repository.TokenRepository;
+import com.mac.projectmac.auth.domain.entity.User;
+import com.mac.projectmac.auth.domain.exception.AuthErrorCode;
+import com.mac.projectmac.auth.domain.repository.TokenRepository;
 import com.mac.projectmac.auth.infrastructure.persistence.UserJpaRepository;
 import com.mac.projectmac.global.domain.common.error.exception.NotFoundException;
 import com.mac.projectmac.global.domain.common.error.exception.ValidationException;

@@ -1,6 +1,6 @@
 package com.mac.projectmac.auth.infrastructure.redis;
 
-import com.mac.projectmac.auth.business.repository.TokenRepository;
+import com.mac.projectmac.auth.domain.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;

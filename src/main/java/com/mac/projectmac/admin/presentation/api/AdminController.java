@@ -45,6 +45,6 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(
                 AdminResponseCode.OK,
                 AdminResponseMessage.CHANGE_STATUS,
-                AccountStatusResponse.from(adminService.changeStatus(userId, request.getStatus()))));
+                adminService.changeStatus(userId, request)));
     }
 }
