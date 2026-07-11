@@ -10,6 +10,9 @@ import com.mac.projectmac.problem.dataset.presentation.api.response.ProblemDatas
 import com.mac.projectmac.global.api.common.ApiResponse;
 import com.mac.projectmac.global.domain.common.error.exception.ExternalServiceException;
 import com.mac.projectmac.global.domain.common.error.exception.ValidationException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,6 +32,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/problem-datasets")
 @RequiredArgsConstructor
+@Tag(name = "Problem Dataset", description = "문제 데이터셋 업로드/조회/삭제 API")
 public class ProblemDatasetController {
 
     // TODO: 실제 인증 연결 시 SecurityContext 의 현재 유저로 교체
@@ -38,6 +42,13 @@ public class ProblemDatasetController {
     private final GetProblemDatasetUseCase getProblemDatasetUseCase;
     private final DeleteProblemDatasetUseCase deleteProblemDatasetUseCase;
 
+    @Operation(summary = "문제 데이터셋 파일 업로드")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "업로드 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "PD-001: 업로드 파일 누락"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요 (Bearer 토큰 없음)"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "PD-002: 파일 저장 실패")
+    })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ProblemDatasetResponse>> upload(
             @RequestPart(value = "file", required = false) MultipartFile file
@@ -62,6 +73,12 @@ public class ProblemDatasetController {
                 ));
     }
 
+    @Operation(summary = "문제 데이터셋 단건 조회")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요 (Bearer 토큰 없음)"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "PD-003: 데이터셋을 찾을 수 없음")
+    })
     @GetMapping("/{datasetId}")
     public ResponseEntity<ApiResponse<ProblemDatasetResponse>> get(@PathVariable Long datasetId) {
         ProblemDataset dataset = getProblemDatasetUseCase.getById(datasetId);
@@ -73,6 +90,11 @@ public class ProblemDatasetController {
         ));
     }
 
+    @Operation(summary = "문제 데이터셋 목록 조회")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요 (Bearer 토큰 없음)")
+    })
     @GetMapping
     public ResponseEntity<ApiResponse<List<ProblemDatasetResponse>>> list() {
         List<ProblemDatasetResponse> datasets = getProblemDatasetUseCase.getAll().stream()
@@ -86,6 +108,12 @@ public class ProblemDatasetController {
         ));
     }
 
+    @Operation(summary = "문제 데이터셋 삭제 (soft delete)")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "삭제 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요 (Bearer 토큰 없음)"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "PD-003: 데이터셋을 찾을 수 없음")
+    })
     @DeleteMapping("/{datasetId}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long datasetId) {
         deleteProblemDatasetUseCase.delete(datasetId);
