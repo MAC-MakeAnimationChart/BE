@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,14 +30,12 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class DataSourceController {
 
-    // TODO: 실제 인증 연결 시 SecurityContext 의 현재 유저로 교체
-    private static final Long STUB_OWNER_ID = 1L;
-
     private final CreateDataSourceUseCase createDataSourceUseCase;
     private final ObjectMapper objectMapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<CreateDataSourceResponse>> create(
+            @AuthenticationPrincipal Long ownerId,
             @RequestParam("data") String data,
             @RequestPart(value = "file", required = false) MultipartFile file
     ) {
@@ -44,7 +43,7 @@ public class DataSourceController {
         request.validate(file);
 
         CreateDataSourceCommand command = new CreateDataSourceCommand(
-                STUB_OWNER_ID,
+                ownerId,
                 request.projectId(),
                 SourceType.UPLOAD,
                 file.getOriginalFilename(),
