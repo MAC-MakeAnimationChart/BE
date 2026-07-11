@@ -2,6 +2,9 @@ package com.mac.projectmac.global.logging.presentation.api;
 
 import com.mac.projectmac.global.api.common.ApiResponse;
 import com.mac.projectmac.global.logging.presentation.api.dto.HealthResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,10 +21,16 @@ import java.time.Instant;
 @RestController
 @RequestMapping("/api/v1/health")
 @RequiredArgsConstructor
+@Tag(name = "Health", description = "서버 상태 확인 API")
 public class HealthController {
 
     private final DataSource dataSource;
 
+    @Operation(summary = "서버/DB 헬스체크")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "정상 (UP)"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "503", description = "LOG-503: DB 연결 실패 (DOWN)")
+    })
     @GetMapping
     public ResponseEntity<ApiResponse<HealthResponse>> health() {
         boolean dbUp = isDbUp();
