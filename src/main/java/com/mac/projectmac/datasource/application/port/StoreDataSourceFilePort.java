@@ -4,9 +4,10 @@ import com.mac.projectmac.datasource.domain.model.StoredFile;
 
 import java.io.IOException;
 
-public interface StoreFilePort {
+public interface StoreDataSourceFilePort {
 
-    StoredFile store(String originalFileName, String contentType, byte[] content, long fileSize) throws IOException;
+    StoredFile store(String originalFileName, String contentType, byte[] content, long fileSize)
+            throws IOException;
 
     void delete(String objectPath);
 }

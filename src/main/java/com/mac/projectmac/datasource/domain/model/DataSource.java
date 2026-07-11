@@ -9,9 +9,9 @@ public class DataSource {
 
     private Long id;
     private Long ownerId;
-    private Long projectId;
-    private SourceType sourceType;
     private String fileName;
+    private String storedFileName;
+    private String fileUrl;
     private String filePath;
     private long fileSize;
     private String mimeType;
@@ -23,9 +23,9 @@ public class DataSource {
     private DataSource(
             Long id,
             Long ownerId,
-            Long projectId,
-            SourceType sourceType,
             String fileName,
+            String storedFileName,
+            String fileUrl,
             String filePath,
             long fileSize,
             String mimeType,
@@ -36,9 +36,9 @@ public class DataSource {
     ) {
         this.id = id;
         this.ownerId = ownerId;
-        this.projectId = projectId;
-        this.sourceType = sourceType;
         this.fileName = fileName;
+        this.storedFileName = storedFileName;
+        this.fileUrl = fileUrl;
         this.filePath = filePath;
         this.fileSize = fileSize;
         this.mimeType = mimeType;
@@ -48,26 +48,18 @@ public class DataSource {
         this.deletedAt = deletedAt;
     }
 
-    /** 업로드 직후 파싱 대기(PENDING) 상태로 생성한다. */
-    public static DataSource createPending(
-            Long ownerId,
-            Long projectId,
-            SourceType sourceType,
-            String fileName,
-            String filePath,
-            long fileSize,
-            String mimeType
-    ) {
+    /** 업로드된 파일 정보로 활성(ACTIVE) 데이터소스를 생성한다. */
+    public static DataSource createActive(Long ownerId, StoredFile stored) {
         return new DataSource(
                 null,
                 ownerId,
-                projectId,
-                sourceType,
-                fileName,
-                filePath,
-                fileSize,
-                mimeType,
-                SourceStatus.PENDING,
+                stored.originalFileName(),
+                stored.storedFileName(),
+                stored.fileUrl(),
+                stored.objectPath(),
+                stored.fileSize(),
+                stored.contentType(),
+                SourceStatus.ACTIVE,
                 null,
                 null,
                 null
@@ -78,9 +70,9 @@ public class DataSource {
     public static DataSource restore(
             Long id,
             Long ownerId,
-            Long projectId,
-            SourceType sourceType,
             String fileName,
+            String storedFileName,
+            String fileUrl,
             String filePath,
             long fileSize,
             String mimeType,
@@ -92,9 +84,9 @@ public class DataSource {
         return new DataSource(
                 id,
                 ownerId,
-                projectId,
-                sourceType,
                 fileName,
+                storedFileName,
+                fileUrl,
                 filePath,
                 fileSize,
                 mimeType,
@@ -105,7 +97,13 @@ public class DataSource {
         );
     }
 
+    /** 소프트 삭제: 상태를 DELETED 로 바꾸고 삭제 시각을 기록한다. */
     public void softDelete(Instant deletedAt) {
+        this.status = SourceStatus.DELETED;
         this.deletedAt = deletedAt;
+    }
+
+    public boolean isDeleted() {
+        return status == SourceStatus.DELETED;
     }
 }
