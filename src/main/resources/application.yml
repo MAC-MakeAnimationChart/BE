@@ -68,6 +68,5 @@ gcp:
   project-id: ${GCP_PROJECT_ID:}
   storage:
     data-source-prefix: data_source
-    problem-dataset-prefix: problem_dataset
   credentials:
     location: ${GCP_CREDENTIALS_LOCATION:}
