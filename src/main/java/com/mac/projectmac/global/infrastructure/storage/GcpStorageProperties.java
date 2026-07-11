@@ -29,6 +29,7 @@ public class GcpStorageProperties {
 
         private String bucket;
         private String dataSourcePrefix = "data_source";
+        private String problemDatasetPrefix = "problem_dataset";
 
         public String getBucket() {
             return bucket;
@@ -44,6 +45,14 @@ public class GcpStorageProperties {
 
         public void setDataSourcePrefix(String dataSourcePrefix) {
             this.dataSourcePrefix = dataSourcePrefix;
+        }
+
+        public String getProblemDatasetPrefix() {
+            return problemDatasetPrefix;
+        }
+
+        public void setProblemDatasetPrefix(String problemDatasetPrefix) {
+            this.problemDatasetPrefix = problemDatasetPrefix;
         }
     }
 
