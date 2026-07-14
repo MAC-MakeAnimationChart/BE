@@ -64,7 +64,7 @@
     </appender>
 
     <!-- 슬로우 쿼리 logger -->
-    <logger name="com.mac.projectmac.global.logging.p6spy.SlowQueryLogger"
+    <logger name="com.mac.projectmac.global.logging.infrastructure.p6spy.SlowQueryLogger"
             level="WARN" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE_SLOW_QUERY"/>

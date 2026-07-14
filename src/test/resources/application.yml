@@ -12,3 +12,19 @@ spring:
     hibernate:
       ddl-auto: create-drop
     open-in-view: false
+
+  flyway:
+    enabled: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+cors:
+  allowed-origins: "http://localhost:3000"
+
+jwt:
+  secret: test-secret-key-minimum-32-characters-long!!
+  access-expire-ms: 3600000
+  refresh-expire-ms: 604800000

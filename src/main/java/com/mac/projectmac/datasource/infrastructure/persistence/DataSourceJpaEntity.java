@@ -1,8 +1,7 @@
 package com.mac.projectmac.datasource.infrastructure.persistence;
 
-import com.mac.projectmac.datasource.domain.model.DataSource;
 import com.mac.projectmac.datasource.domain.model.SourceStatus;
-import com.mac.projectmac.datasource.domain.model.SourceType;
+import com.mac.projectmac.datasource.domain.model.DataSource;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -34,12 +33,12 @@ public class DataSourceJpaEntity {
 
     private Long ownerId;
 
-    private Long projectId;
-
-    @Enumerated(EnumType.STRING)
-    private SourceType sourceType;
-
     private String fileName;
+
+    private String storedFileName;
+
+    @Column(length = 1000)
+    private String fileUrl;
 
     @Column(length = 1000)
     private String filePath;
@@ -63,9 +62,9 @@ public class DataSourceJpaEntity {
     private DataSourceJpaEntity(
             Long id,
             Long ownerId,
-            Long projectId,
-            SourceType sourceType,
             String fileName,
+            String storedFileName,
+            String fileUrl,
             String filePath,
             long fileSize,
             String mimeType,
@@ -76,9 +75,9 @@ public class DataSourceJpaEntity {
     ) {
         this.id = id;
         this.ownerId = ownerId;
-        this.projectId = projectId;
-        this.sourceType = sourceType;
         this.fileName = fileName;
+        this.storedFileName = storedFileName;
+        this.fileUrl = fileUrl;
         this.filePath = filePath;
         this.fileSize = fileSize;
         this.mimeType = mimeType;
@@ -89,20 +88,20 @@ public class DataSourceJpaEntity {
     }
 
     // 데이터소스 도메인 객체를 JPA 엔티티로 변환한다.
-    public static DataSourceJpaEntity from(DataSource dataSource) {
+    public static DataSourceJpaEntity from(DataSource dataset) {
         return new DataSourceJpaEntity(
-                dataSource.getId(),
-                dataSource.getOwnerId(),
-                dataSource.getProjectId(),
-                dataSource.getSourceType(),
-                dataSource.getFileName(),
-                dataSource.getFilePath(),
-                dataSource.getFileSize(),
-                dataSource.getMimeType(),
-                dataSource.getStatus(),
-                dataSource.getCreatedAt(),
-                dataSource.getUpdatedAt(),
-                dataSource.getDeletedAt()
+                dataset.getId(),
+                dataset.getOwnerId(),
+                dataset.getFileName(),
+                dataset.getStoredFileName(),
+                dataset.getFileUrl(),
+                dataset.getFilePath(),
+                dataset.getFileSize(),
+                dataset.getMimeType(),
+                dataset.getStatus(),
+                dataset.getCreatedAt(),
+                dataset.getUpdatedAt(),
+                dataset.getDeletedAt()
         );
     }
 
@@ -111,9 +110,9 @@ public class DataSourceJpaEntity {
         return DataSource.restore(
                 id,
                 ownerId,
-                projectId,
-                sourceType,
                 fileName,
+                storedFileName,
+                fileUrl,
                 filePath,
                 fileSize,
                 mimeType,
