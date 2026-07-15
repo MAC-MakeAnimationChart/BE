@@ -1,7 +1,9 @@
 package com.mac.projectmac.global.api.common;
 
 import com.mac.projectmac.global.domain.common.error.ErrorCode;
+import com.mac.projectmac.global.domain.common.error.exception.ExternalServiceException;
 import com.mac.projectmac.global.domain.common.error.exception.NotFoundException;
+import com.mac.projectmac.global.logging.alert.AlertService;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.mock.env.MockEnvironment;
@@ -10,14 +12,21 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 class GlobalExceptionHandlerTest {
 
-    private final GlobalExceptionHandler handler = new GlobalExceptionHandler(new MockEnvironment());
+    private final AlertService alertService = mock(AlertService.class);
+    private final GlobalExceptionHandler handler =
+            new GlobalExceptionHandler(new MockEnvironment(), List.of(alertService));
 
     @Test
     void validationExceptionReturnsFieldErrorsInCommonResponse() throws Exception {
@@ -72,6 +81,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody().message()).isEqualTo("테스트 리소스를 찾을 수 없습니다.");
         assertThat(response.getBody().path()).isEqualTo("/api/test/1");
         assertThat(response.getBody().errors()).isEmpty();
+        verify(alertService, never()).sendAlert(exception, request);
     }
 
     @Test
@@ -93,8 +103,9 @@ class GlobalExceptionHandlerTest {
     @Test
     void unexpectedExceptionHidesDetailMessageOutsideLocalProfile() {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/test");
+        RuntimeException exception = new RuntimeException("database password leaked");
 
-        var response = handler.handleException(new RuntimeException("database password leaked"), request);
+        var response = handler.handleException(exception, request);
 
         assertThat(response.getStatusCode().value()).isEqualTo(500);
         assertThat(response.getBody()).isNotNull();
@@ -102,6 +113,40 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody().message()).isEqualTo("서버 오류가 발생했습니다.");
         assertThat(response.getBody().path()).isEqualTo("/api/test");
         assertThat(response.getBody().errors()).isEmpty();
+        verify(alertService).sendAlert(exception, request);
+    }
+
+    @Test
+    void serverDomainExceptionSendsAlertAndKeepsErrorCodeResponse() {
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/files");
+        ExternalServiceException exception = new ExternalServiceException(TestErrorCode.TEST_EXTERNAL_FAILED);
+
+        var response = handler.handleDomainException(exception, request);
+
+        assertThat(response.getStatusCode().value()).isEqualTo(502);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().status()).isEqualTo(502);
+        assertThat(response.getBody().code()).isEqualTo("TEST-502");
+        assertThat(response.getBody().message()).isEqualTo("외부 서비스 연동에 실패했습니다.");
+        assertThat(response.getBody().path()).isEqualTo("/api/files");
+        assertThat(response.getBody().errors()).isEmpty();
+        verify(alertService).sendAlert(exception, request);
+    }
+
+    @Test
+    void maxUploadSizeExceededReturnsFileSizeExceededResponseWithoutAlert() {
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/files");
+        MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(50L);
+
+        var response = handler.handleMaxUploadSizeExceeded(exception, request);
+
+        assertThat(response.getStatusCode().value()).isEqualTo(413);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().code()).isEqualTo("FILE_SIZE_EXCEEDED");
+        assertThat(response.getBody().message()).isEqualTo("파일 용량이 허용 한도를 초과했습니다.");
+        assertThat(response.getBody().path()).isEqualTo("/api/files");
+        assertThat(response.getBody().errors()).isEmpty();
+        verify(alertService, never()).sendAlert(exception, request);
     }
 
     private record TestRequest(String name) {
@@ -114,7 +159,8 @@ class GlobalExceptionHandlerTest {
     }
 
     private enum TestErrorCode implements ErrorCode {
-        TEST_NOT_FOUND("TEST-404", "테스트 리소스를 찾을 수 없습니다.");
+        TEST_NOT_FOUND("TEST-404", "테스트 리소스를 찾을 수 없습니다."),
+        TEST_EXTERNAL_FAILED("TEST-502", "외부 서비스 연동에 실패했습니다.");
 
         private final String code;
         private final String message;
