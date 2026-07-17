@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,13 +45,16 @@ public class ChartOptionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "CHO-001: 차트 옵션을 찾을 수 없음")
     })
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> getChartOption(@PathVariable Long projectId) {
-        log.info("[ChartOptionController] get chart option - projectId: {}", projectId);
+    public ResponseEntity<ApiResponse<?>> getChartOption(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long projectId
+    ) {
+        log.info("[ChartOptionController] get chart option - userId: {}, projectId: {}", userId, projectId);
 
         return ResponseEntity.ok(ApiResponse.success(
                 ChartOptionResponseCode.OK,
                 ChartOptionResponseMessage.OK,
-                ChartOptionDetailResponse.from(getChartOptionUseCase.getByProjectId(projectId))
+                ChartOptionDetailResponse.from(getChartOptionUseCase.getByProjectId(userId, projectId))
         ));
     }
 
@@ -66,15 +70,16 @@ public class ChartOptionController {
     })
     @PutMapping
     public ResponseEntity<ApiResponse<?>> updateChartOption(
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long projectId,
             @RequestBody UpdateChartOptionRequest request
     ) {
-        log.info("[ChartOptionController] update chart option - projectId: {}", projectId);
+        log.info("[ChartOptionController] update chart option - userId: {}, projectId: {}", userId, projectId);
 
         return ResponseEntity.ok(ApiResponse.success(
                 ChartOptionResponseCode.SAVED,
                 ChartOptionResponseMessage.SAVED,
-                ChartOptionSaveResponse.from(updateChartOptionUseCase.update(request.toCommand(projectId)))
+                ChartOptionSaveResponse.from(updateChartOptionUseCase.update(request.toCommand(userId, projectId)))
         ));
     }
 
@@ -88,16 +93,17 @@ public class ChartOptionController {
     })
     @PostMapping
     public ResponseEntity<ApiResponse<?>> registerChartOption(
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long projectId,
             @RequestBody RegisterChartOptionRequest request
     ) {
-        log.info("[ChartOptionController] register chart option - projectId: {}", projectId);
+        log.info("[ChartOptionController] register chart option - userId: {}, projectId: {}", userId, projectId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.created(
                         ChartOptionResponseCode.CREATED,
                         ChartOptionResponseMessage.CREATED,
-                        ChartOptionResponse.from(registerChartOptionUseCase.register(request.toCommand(projectId)))
+                        ChartOptionResponse.from(registerChartOptionUseCase.register(request.toCommand(userId, projectId)))
                 ));
     }
 }

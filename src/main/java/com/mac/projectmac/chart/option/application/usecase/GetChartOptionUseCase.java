@@ -4,6 +4,6 @@ import com.mac.projectmac.chart.option.domain.model.ChartOption;
 
 public interface GetChartOptionUseCase {
 
-    // 프로젝트 번호로 저장된 차트 옵션을 조회한다.
-    ChartOption getByProjectId(Long projectId);
+    // 인증 사용자가 접근 가능한 프로젝트의 저장된 차트 옵션을 조회한다.
+    ChartOption getByProjectId(Long userId, Long projectId);
 }
