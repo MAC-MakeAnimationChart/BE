@@ -38,14 +38,17 @@ public class ChartOptionController {
     private final UpdateChartOptionUseCase updateChartOptionUseCase;
 
     // 프로젝트 차트 옵션 조회 HTTP 요청을 조회 유스케이스로 전달한다.
-    @Operation(summary = "프로젝트 차트 옵션 조회")
+    @Operation(
+            summary = "프로젝트 차트 옵션 조회",
+            description = "Authorization Bearer Token의 사용자 식별자와 projectId로 접근 가능한 프로젝트인지 확인한 뒤 차트 옵션을 조회합니다."
+    )
     @io.swagger.v3.oas.annotations.responses.ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "PRJ-001: 프로젝트를 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "CHO-001: 차트 옵션을 찾을 수 없음")
     })
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> getChartOption(
+    public ResponseEntity<ApiResponse<ChartOptionDetailResponse>> getChartOption(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long projectId
     ) {
@@ -59,7 +62,10 @@ public class ChartOptionController {
     }
 
     // 프로젝트 차트 옵션 저장 HTTP 요청을 저장 유스케이스로 전달한다.
-    @Operation(summary = "프로젝트 차트 옵션 저장/수정")
+    @Operation(
+            summary = "프로젝트 차트 옵션 저장/수정",
+            description = "Authorization Bearer Token의 사용자 식별자와 projectId로 접근 가능한 프로젝트인지 확인한 뒤 차트 타입, 데이터 매핑, 스타일 옵션을 저장합니다."
+    )
     @io.swagger.v3.oas.annotations.responses.ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "저장 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "PRJ-001: 프로젝트를 찾을 수 없음"),
@@ -69,7 +75,7 @@ public class ChartOptionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "CHO-004: 유효하지 않은 스타일 옵션")
     })
     @PutMapping
-    public ResponseEntity<ApiResponse<?>> updateChartOption(
+    public ResponseEntity<ApiResponse<ChartOptionSaveResponse>> updateChartOption(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long projectId,
             @RequestBody UpdateChartOptionRequest request
@@ -84,7 +90,10 @@ public class ChartOptionController {
     }
 
     // 차트 옵션 최초 생성 HTTP 요청을 등록 유스케이스로 전달한다.
-    @Operation(summary = "프로젝트 차트 옵션 최초 생성")
+    @Operation(
+            summary = "프로젝트 차트 옵션 최초 생성",
+            description = "Authorization Bearer Token의 사용자 식별자와 projectId로 접근 가능한 프로젝트인지 확인한 뒤 차트 타입만 가진 최초 옵션 행을 생성합니다."
+    )
     @io.swagger.v3.oas.annotations.responses.ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "PRJ-001: 프로젝트를 찾을 수 없음"),
@@ -92,7 +101,7 @@ public class ChartOptionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "CHO-002: 지원하지 않는 차트 타입")
     })
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> registerChartOption(
+    public ResponseEntity<ApiResponse<ChartOptionResponse>> registerChartOption(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long projectId,
             @RequestBody RegisterChartOptionRequest request
