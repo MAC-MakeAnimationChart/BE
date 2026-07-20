@@ -2,7 +2,7 @@ package com.mac.projectmac.chart.option.application.service;
 
 import com.mac.projectmac.chart.option.application.command.RegisterChartOptionCommand;
 import com.mac.projectmac.chart.option.application.command.UpdateChartOptionCommand;
-import com.mac.projectmac.chart.option.application.port.ProjectExistencePort;
+import com.mac.projectmac.chart.option.application.port.ProjectAccessPort;
 import com.mac.projectmac.chart.option.application.usecase.RegisterChartOptionUseCase;
 import com.mac.projectmac.chart.option.application.usecase.UpdateChartOptionUseCase;
 import com.mac.projectmac.chart.option.domain.exception.ChartOptionErrorCode;
@@ -26,13 +26,13 @@ public class ChartOptionCommandService implements RegisterChartOptionUseCase, Up
     private static final Logger log = LoggerFactory.getLogger(ChartOptionCommandService.class);
 
     private final ChartOptionRepository chartOptionRepository;
-    private final ProjectExistencePort projectExistencePort;
+    private final ProjectAccessPort projectAccessPort;
 
     // 프로젝트 검증 후 차트 옵션 최초 행을 생성한다.
     @Override
     public ChartOption register(RegisterChartOptionCommand command) {
         ChartType chartType = ChartType.from(command.chartType());
-        validateProjectExists(command.projectId());
+        validateWritableProject(command.projectId(), command.userId());
         validateChartOptionNotExists(command.projectId());
 
         ChartOption chartOption = ChartOption.create(command.projectId(), chartType);
@@ -51,7 +51,7 @@ public class ChartOptionCommandService implements RegisterChartOptionUseCase, Up
         ChartType chartType = ChartType.from(command.chartType());
         ChartOptionValidator.validateDataMapping(command.dataMapping());
         ChartOptionValidator.validateStyleOption(command.styleOption());
-        validateProjectExists(command.projectId());
+        validateWritableProject(command.projectId(), command.userId());
 
         ChartOption chartOption = chartOptionRepository.findActiveByProjectId(command.projectId())
                 .orElseThrow(() -> new NotFoundException(ChartOptionErrorCode.CHART_OPTION_NOT_FOUND));
@@ -66,9 +66,9 @@ public class ChartOptionCommandService implements RegisterChartOptionUseCase, Up
         return savedChartOption;
     }
 
-    // 프로젝트 번호가 실제 프로젝트 테이블에 존재하는지 확인한다.
-    private void validateProjectExists(Long projectId) {
-        if (!projectExistencePort.existsByProjectId(projectId)) {
+    // 인증 사용자가 프로젝트의 차트 옵션을 저장할 수 있는지 확인한다.
+    private void validateWritableProject(Long projectId, Long userId) {
+        if (!projectAccessPort.canWriteProject(projectId, userId)) {
             throw new NotFoundException(ChartOptionErrorCode.PROJECT_NOT_FOUND);
         }
     }

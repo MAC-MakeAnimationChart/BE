@@ -3,7 +3,7 @@ package com.mac.projectmac.global.api.common;
 import com.mac.projectmac.global.domain.common.error.ErrorCode;
 import com.mac.projectmac.global.domain.common.error.exception.ExternalServiceException;
 import com.mac.projectmac.global.domain.common.error.exception.NotFoundException;
-import com.mac.projectmac.global.logging.alert.AlertService;
+import com.mac.projectmac.global.logging.application.service.AlertService;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.mock.env.MockEnvironment;

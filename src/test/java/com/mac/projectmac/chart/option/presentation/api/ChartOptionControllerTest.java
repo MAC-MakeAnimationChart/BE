@@ -10,15 +10,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -42,12 +44,12 @@ class ChartOptionControllerTest {
     private UpdateChartOptionUseCase updateChartOptionUseCase;
 
     @Test
-    @WithMockUser
     void getChartOption_returnsDefaultAppliedResponse() throws Exception {
+        Long userId = 100L;
         Long projectId = 1L;
         LocalDateTime now = LocalDateTime.of(2026, 6, 11, 10, 0);
 
-        when(getChartOptionUseCase.getByProjectId(projectId)).thenReturn(ChartOption.restore(
+        when(getChartOptionUseCase.getByProjectId(userId, projectId)).thenReturn(ChartOption.restore(
                 5L,
                 projectId,
                 ChartType.BAR,
@@ -59,6 +61,7 @@ class ChartOptionControllerTest {
         ));
 
         mockMvc.perform(get("/api/v1/projects/{projectId}/chart-option", projectId)
+                        .with(authentication(new UsernamePasswordAuthenticationToken(userId, null, List.of())))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(200))
@@ -78,12 +81,12 @@ class ChartOptionControllerTest {
                 .andExpect(jsonPath("$.data.styleOption.colors").isArray())
                 .andExpect(jsonPath("$.data.defaultApplied").value(true));
 
-        verify(getChartOptionUseCase).getByProjectId(projectId);
+        verify(getChartOptionUseCase).getByProjectId(userId, projectId);
     }
 
     @Test
-    @WithMockUser
     void updateChartOption_returnsSavedResponse() throws Exception {
+        Long userId = 100L;
         Long projectId = 1L;
         LocalDateTime now = LocalDateTime.of(2026, 6, 11, 10, 5);
 
@@ -99,6 +102,7 @@ class ChartOptionControllerTest {
         ));
 
         mockMvc.perform(put("/api/v1/projects/{projectId}/chart-option", projectId)
+                        .with(authentication(new UsernamePasswordAuthenticationToken(userId, null, List.of())))
                         .with(csrf())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -136,11 +140,11 @@ class ChartOptionControllerTest {
     }
 
     @Test
-    @WithMockUser
     void registerChartOption_returnsCreatedResponse() throws Exception {
+        Long userId = 100L;
         Long projectId = 1L;
         LocalDateTime now = LocalDateTime.of(2026, 6, 11, 10, 0);
-        RegisterChartOptionCommand command = new RegisterChartOptionCommand(projectId, "BAR");
+        RegisterChartOptionCommand command = new RegisterChartOptionCommand(userId, projectId, "BAR");
 
         when(registerChartOptionUseCase.register(command)).thenReturn(ChartOption.restore(
                 5L,
@@ -154,6 +158,7 @@ class ChartOptionControllerTest {
         ));
 
         mockMvc.perform(post("/api/v1/projects/{projectId}/chart-option", projectId)
+                        .with(authentication(new UsernamePasswordAuthenticationToken(userId, null, List.of())))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""

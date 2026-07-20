@@ -14,8 +14,8 @@ public record UpdateChartOptionRequest(
         JsonNode styleOption
 ) {
 
-    // path의 프로젝트 번호와 요청 본문을 저장 command로 변환한다.
-    public UpdateChartOptionCommand toCommand(Long projectId) {
-        return new UpdateChartOptionCommand(projectId, chartType, dataMapping, styleOption);
+    // 인증 사용자와 path의 프로젝트 번호, 요청 본문을 저장 command로 변환한다.
+    public UpdateChartOptionCommand toCommand(Long userId, Long projectId) {
+        return new UpdateChartOptionCommand(userId, projectId, chartType, dataMapping, styleOption);
     }
 }

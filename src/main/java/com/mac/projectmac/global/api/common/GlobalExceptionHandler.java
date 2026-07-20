@@ -1,7 +1,7 @@
 package com.mac.projectmac.global.api.common;
 
 import com.mac.projectmac.global.domain.common.DomainException;
-import com.mac.projectmac.global.logging.alert.AlertService;
+import com.mac.projectmac.global.logging.application.service.AlertService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

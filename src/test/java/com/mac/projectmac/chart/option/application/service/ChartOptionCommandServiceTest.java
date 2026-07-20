@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mac.projectmac.chart.option.application.command.RegisterChartOptionCommand;
 import com.mac.projectmac.chart.option.application.command.UpdateChartOptionCommand;
-import com.mac.projectmac.chart.option.application.port.ProjectExistencePort;
+import com.mac.projectmac.chart.option.application.port.ProjectAccessPort;
 import com.mac.projectmac.chart.option.domain.model.ChartOption;
 import com.mac.projectmac.chart.option.domain.model.ChartType;
 import com.mac.projectmac.chart.option.domain.repository.ChartOptionRepository;
@@ -34,17 +34,18 @@ class ChartOptionCommandServiceTest {
     private ChartOptionRepository chartOptionRepository;
 
     @Mock
-    private ProjectExistencePort projectExistencePort;
+    private ProjectAccessPort projectAccessPort;
 
     @InjectMocks
     private ChartOptionCommandService chartOptionCommandService;
 
     @Test
     void register_createsChartOptionWithChartTypeOnly() {
+        Long userId = 100L;
         Long projectId = 1L;
         LocalDateTime now = LocalDateTime.now();
 
-        when(projectExistencePort.existsByProjectId(projectId)).thenReturn(true);
+        when(projectAccessPort.canWriteProject(projectId, userId)).thenReturn(true);
         when(chartOptionRepository.existsActiveByProjectId(projectId)).thenReturn(false);
         when(chartOptionRepository.save(any(ChartOption.class))).thenReturn(ChartOption.restore(
                 10L,
@@ -57,7 +58,7 @@ class ChartOptionCommandServiceTest {
                 null
         ));
 
-        ChartOption result = chartOptionCommandService.register(new RegisterChartOptionCommand(projectId, "BAR"));
+        ChartOption result = chartOptionCommandService.register(new RegisterChartOptionCommand(userId, projectId, "BAR"));
 
         assertThat(result.getChartOptionId()).isEqualTo(10L);
         assertThat(result.getProjectId()).isEqualTo(projectId);
@@ -69,38 +70,41 @@ class ChartOptionCommandServiceTest {
 
     @Test
     void register_throwsNotFoundWhenProjectDoesNotExist() {
+        Long userId = 100L;
         Long projectId = 999L;
-        when(projectExistencePort.existsByProjectId(projectId)).thenReturn(false);
+        when(projectAccessPort.canWriteProject(projectId, userId)).thenReturn(false);
 
         assertThatThrownBy(() -> chartOptionCommandService.register(
-                new RegisterChartOptionCommand(projectId, "BAR")
+                new RegisterChartOptionCommand(userId, projectId, "BAR")
         )).isInstanceOf(NotFoundException.class);
     }
 
     @Test
     void register_throwsConflictWhenChartOptionAlreadyExists() {
+        Long userId = 100L;
         Long projectId = 1L;
-        when(projectExistencePort.existsByProjectId(projectId)).thenReturn(true);
+        when(projectAccessPort.canWriteProject(projectId, userId)).thenReturn(true);
         when(chartOptionRepository.existsActiveByProjectId(projectId)).thenReturn(true);
 
         assertThatThrownBy(() -> chartOptionCommandService.register(
-                new RegisterChartOptionCommand(projectId, "BAR")
+                new RegisterChartOptionCommand(userId, projectId, "BAR")
         )).isInstanceOf(ConflictException.class);
     }
 
     @Test
     void register_throwsExceptionWhenChartTypeIsUnsupported() {
         assertThatThrownBy(() -> chartOptionCommandService.register(
-                new RegisterChartOptionCommand(1L, "bar")
+                new RegisterChartOptionCommand(100L, 1L, "bar")
         )).hasMessage("지원하지 않는 차트 타입입니다.");
     }
 
     @Test
     void register_createsChartOptionWhenChartTypeIsPlanned() {
+        Long userId = 100L;
         Long projectId = 1L;
         LocalDateTime now = LocalDateTime.now();
 
-        when(projectExistencePort.existsByProjectId(projectId)).thenReturn(true);
+        when(projectAccessPort.canWriteProject(projectId, userId)).thenReturn(true);
         when(chartOptionRepository.existsActiveByProjectId(projectId)).thenReturn(false);
         when(chartOptionRepository.save(any(ChartOption.class))).thenReturn(ChartOption.restore(
                 11L,
@@ -114,7 +118,7 @@ class ChartOptionCommandServiceTest {
         ));
 
         ChartOption result = chartOptionCommandService.register(
-                new RegisterChartOptionCommand(1L, "SCATTER")
+                new RegisterChartOptionCommand(userId, projectId, "SCATTER")
         );
 
         assertThat(result.getChartType()).isEqualTo(ChartType.SCATTER);
@@ -122,6 +126,7 @@ class ChartOptionCommandServiceTest {
 
     @Test
     void update_savesChartOptionValuesWhenRequestIsValid() throws Exception {
+        Long userId = 100L;
         Long projectId = 1L;
         LocalDateTime now = LocalDateTime.now();
         JsonNode dataMapping = objectMapper.readTree("""
@@ -154,12 +159,12 @@ class ChartOptionCommandServiceTest {
                 null
         );
 
-        when(projectExistencePort.existsByProjectId(projectId)).thenReturn(true);
+        when(projectAccessPort.canWriteProject(projectId, userId)).thenReturn(true);
         when(chartOptionRepository.findActiveByProjectId(projectId)).thenReturn(Optional.of(chartOption));
         when(chartOptionRepository.save(any(ChartOption.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         ChartOption result = chartOptionCommandService.update(
-                new UpdateChartOptionCommand(projectId, "BAR", dataMapping, styleOption)
+                new UpdateChartOptionCommand(userId, projectId, "BAR", dataMapping, styleOption)
         );
 
         assertThat(result.getChartOptionId()).isEqualTo(5L);
@@ -171,6 +176,7 @@ class ChartOptionCommandServiceTest {
 
     @Test
     void update_throwsNotFoundWhenChartOptionDoesNotExist() throws Exception {
+        Long userId = 100L;
         Long projectId = 1L;
         JsonNode dataMapping = objectMapper.readTree("""
                 {
@@ -179,11 +185,11 @@ class ChartOptionCommandServiceTest {
                 }
                 """);
 
-        when(projectExistencePort.existsByProjectId(projectId)).thenReturn(true);
+        when(projectAccessPort.canWriteProject(projectId, userId)).thenReturn(true);
         when(chartOptionRepository.findActiveByProjectId(projectId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> chartOptionCommandService.update(
-                new UpdateChartOptionCommand(projectId, "BAR", dataMapping, null)
+                new UpdateChartOptionCommand(userId, projectId, "BAR", dataMapping, null)
         )).isInstanceOf(NotFoundException.class)
                 .hasMessage("차트 옵션을 찾을 수 없습니다.");
     }
@@ -191,7 +197,7 @@ class ChartOptionCommandServiceTest {
     @Test
     void update_throwsExceptionWhenDataMappingIsInvalid() {
         assertThatThrownBy(() -> chartOptionCommandService.update(
-                new UpdateChartOptionCommand(1L, "BAR", null, null)
+                new UpdateChartOptionCommand(100L, 1L, "BAR", null, null)
         )).hasMessage("유효하지 않은 데이터 매핑입니다.");
     }
 
@@ -210,7 +216,7 @@ class ChartOptionCommandServiceTest {
                 """);
 
         assertThatThrownBy(() -> chartOptionCommandService.update(
-                new UpdateChartOptionCommand(1L, "BAR", dataMapping, styleOption)
+                new UpdateChartOptionCommand(100L, 1L, "BAR", dataMapping, styleOption)
         )).hasMessage("유효하지 않은 스타일 옵션입니다.");
     }
 }
