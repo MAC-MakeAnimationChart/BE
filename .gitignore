@@ -49,3 +49,6 @@ src/main/resources/application-local.yaml
 
 ### Local file storage (LocalFileStorage fallback) ###
 uploads/
+
+###gcs
+secrets

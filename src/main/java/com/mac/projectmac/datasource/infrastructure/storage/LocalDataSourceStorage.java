@@ -1,6 +1,6 @@
 package com.mac.projectmac.datasource.infrastructure.storage;
 
-import com.mac.projectmac.datasource.application.port.StoreFilePort;
+import com.mac.projectmac.datasource.application.port.StoreDataSourceFilePort;
 import com.mac.projectmac.datasource.domain.model.StoredFile;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,7 +14,7 @@ import java.util.UUID;
  * 작업 디렉토리 하위 {@code uploads/data-sources} 에 파일을 저장한다.
  */
 @Slf4j
-public class LocalFileStorage implements StoreFilePort {
+public class LocalDataSourceStorage implements StoreDataSourceFilePort {
 
     private static final String UPLOAD_DIR = "uploads/data-sources";
 
@@ -44,7 +44,7 @@ public class LocalFileStorage implements StoreFilePort {
         try {
             Files.deleteIfExists(Path.of(objectPath));
         } catch (IOException e) {
-            log.warn("로컬 파일 삭제에 실패했습니다. objectPath={}", objectPath, e);
+            log.warn("로컬 데이터소스 파일 삭제에 실패했습니다. objectPath={}", objectPath, e);
         }
     }
 

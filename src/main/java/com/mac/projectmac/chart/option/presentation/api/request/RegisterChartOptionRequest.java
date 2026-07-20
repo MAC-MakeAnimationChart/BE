@@ -9,8 +9,8 @@ public record RegisterChartOptionRequest(
         String chartType
 ) {
 
-    // path의 프로젝트 번호와 요청 본문을 등록 command로 변환한다.
-    public RegisterChartOptionCommand toCommand(Long projectId) {
-        return new RegisterChartOptionCommand(projectId, chartType);
+    // 인증 사용자와 path의 프로젝트 번호, 요청 본문을 등록 command로 변환한다.
+    public RegisterChartOptionCommand toCommand(Long userId, Long projectId) {
+        return new RegisterChartOptionCommand(userId, projectId, chartType);
     }
 }

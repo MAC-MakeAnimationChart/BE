@@ -1,7 +1,7 @@
 package com.mac.projectmac.datasource.domain.model;
 
 /**
- * 스토리지(GCS/로컬)에 저장된 파일의 결과 정보.
+ * 스토리지(GCS/로컬)에 저장된 데이터소스 파일의 결과 정보.
  *
  * @param originalFileName 정제된 원본 파일명
  * @param storedFileName   실제 저장된 파일명 (UUID prefix)

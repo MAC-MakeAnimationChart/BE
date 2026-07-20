@@ -1,6 +1,7 @@
 package com.mac.projectmac.global.api.common;
 
 import com.mac.projectmac.global.domain.common.DomainException;
+import com.mac.projectmac.global.logging.application.service.AlertService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,11 +30,13 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     private final Environment env;
+    private final List<AlertService> alertServices;
 
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ApiErrorResponse> handleDomainException(
             DomainException e, HttpServletRequest request) {
         log.warn("[{}] {} - path: {}", e.getHttpStatus(), e.getMessage(), request.getRequestURI());
+        sendAlertIfServerError(e, request);
         return ResponseEntity.status(e.getHttpStatus())
                 .body(ApiErrorResponse.of(e.getHttpStatus(), e.getErrorCode(), request.getRequestURI()));
     }
@@ -110,6 +113,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleException(
             Exception e, HttpServletRequest request) {
         log.error("[500] 예상하지 못한 예외 - path: {}", request.getRequestURI(), e);
+        sendAlertSafely(e, request);
         String message = isDev() ? e.getMessage() : "서버 오류가 발생했습니다.";
         return ResponseEntity.status(500)
                 .body(ApiErrorResponse.of(500, "INTERNAL_ERROR", message, request.getRequestURI()));
@@ -117,6 +121,22 @@ public class GlobalExceptionHandler {
 
     private boolean isDev() {
         return Arrays.asList(env.getActiveProfiles()).contains("local");
+    }
+
+    private void sendAlertIfServerError(DomainException e, HttpServletRequest request) {
+        if (e.getHttpStatus() >= 500) {
+            sendAlertSafely(e, request);
+        }
+    }
+
+    private void sendAlertSafely(Exception e, HttpServletRequest request) {
+        for (AlertService alertService : alertServices) {
+            try {
+                alertService.sendAlert(e, request);
+            } catch (Exception alertException) {
+                log.warn("[Alert] 알림 요청 실패 - path: {}", request.getRequestURI(), alertException);
+            }
+        }
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)

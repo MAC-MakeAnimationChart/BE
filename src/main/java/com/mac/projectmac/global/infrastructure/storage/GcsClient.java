@@ -1,13 +1,10 @@
-package com.mac.projectmac.datasource.infrastructure.storage;
+package com.mac.projectmac.global.infrastructure.storage;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import com.mac.projectmac.datasource.application.port.StoreFilePort;
-import com.mac.projectmac.datasource.domain.model.StoredFile;
-import com.mac.projectmac.global.infrastructure.storage.GcpStorageProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -16,8 +13,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
+/**
+ * GCS 접근 공통 클라이언트. 인증·업로드·삭제·URL 생성 등 기술 로직을 담당한다.
+ * 각 모듈 어댑터는 prefix 지정과 도메인 매핑만 책임진다.
+ */
 @Slf4j
-public class GcsFileStorage implements StoreFilePort {
+public class GcsClient {
 
     private static final String STORAGE_PUBLIC_URL = "https://storage.googleapis.com";
     private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
@@ -26,43 +27,35 @@ public class GcsFileStorage implements StoreFilePort {
     private final ResourceLoader resourceLoader;
     private volatile Storage storage;
 
-    public GcsFileStorage(GcpStorageProperties properties, ResourceLoader resourceLoader) {
+    public GcsClient(GcpStorageProperties properties, ResourceLoader resourceLoader) {
         this.properties = properties;
         this.resourceLoader = resourceLoader;
     }
 
-    @Override
-    public StoredFile store(String originalFileName, String contentType, byte[] content, long fileSize)
+    /** content 를 {prefix}/{uuid}_{safeName} 경로로 업로드한다. */
+    public GcsObject upload(String prefix, String originalFileName, String contentType, byte[] content)
             throws IOException {
         String safeName = sanitizeFileName(originalFileName);
         String storedFileName = UUID.randomUUID() + "_" + safeName;
-        String objectName = buildObjectName(storedFileName);
+        String objectName = buildObjectName(prefix, storedFileName);
 
         BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(bucket(), objectName))
                 .setContentType(contentType != null ? contentType : DEFAULT_CONTENT_TYPE)
                 .build();
-
         getStorage().create(blobInfo, content);
 
-        return new StoredFile(
-                safeName,
-                storedFileName,
-                buildFileUrl(objectName),
-                objectName,
-                fileSize,
-                contentType
-        );
+        return new GcsObject(safeName, storedFileName, objectName, buildFileUrl(objectName));
     }
 
-    @Override
-    public void delete(String objectPath) {
-        if (objectPath == null || objectPath.isBlank()) {
+    /** best-effort 삭제. 실패해도 예외를 던지지 않는다. */
+    public void delete(String objectName) {
+        if (objectName == null || objectName.isBlank()) {
             return;
         }
         try {
-            getStorage().delete(BlobId.of(bucket(), objectPath));
+            getStorage().delete(BlobId.of(bucket(), objectName));
         } catch (Exception e) {
-            log.warn("GCS 파일 삭제에 실패했습니다. objectPath={}", objectPath, e);
+            log.warn("GCS 객체 삭제에 실패했습니다. objectName={}", objectName, e);
         }
     }
 
@@ -92,12 +85,12 @@ public class GcsFileStorage implements StoreFilePort {
         return properties.getStorage().getBucket();
     }
 
-    private String buildObjectName(String storedFileName) {
-        String prefix = normalizePrefix(properties.getStorage().getDataSourcePrefix());
-        if (prefix.isBlank()) {
+    private String buildObjectName(String prefix, String storedFileName) {
+        String normalized = normalizePrefix(prefix);
+        if (normalized.isBlank()) {
             return storedFileName;
         }
-        return prefix + "/" + storedFileName;
+        return normalized + "/" + storedFileName;
     }
 
     private String normalizePrefix(String prefix) {

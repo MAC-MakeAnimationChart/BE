@@ -8,10 +8,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum DataSourceErrorCode implements ErrorCode {
 
-    INVALID_REQUEST("DS-001", "요청 데이터(JSON)를 해석할 수 없습니다."),
-    UNSUPPORTED_SOURCE_TYPE("DS-002", "현재는 UPLOAD 타입만 지원합니다."),
-    UPLOAD_FILE_REQUIRED("DS-003", "UPLOAD 타입은 파일이 필요합니다."),
-    FILE_STORAGE_FAILED("DS-004", "파일 저장에 실패했습니다.");
+    UPLOAD_FILE_REQUIRED("DS-001", "업로드할 파일이 필요합니다."),
+    FILE_STORAGE_FAILED("DS-002", "파일 저장에 실패했습니다."),
+    NOT_FOUND("DS-003", "데이터소스를 찾을 수 없습니다.");
 
     private final String code;
     private final String message;

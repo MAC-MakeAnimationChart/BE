@@ -1,0 +1,27 @@
+# 로컬 개발용 인프라. 인증(로그인/로그아웃/재발급) 및 토큰 블랙리스트 검사에
+# Redis 가 필요하다. Redis 가 없는 팀원은 아래 명령으로 띄우면 된다.
+#
+#   docker compose up -d          # 백그라운드 기동
+#   docker compose ps             # 상태 확인
+#   docker compose down           # 정리 (데이터도 지우려면 -v)
+#
+# 앱은 기본값으로 localhost:6379 (비밀번호 없음) 에 붙는다(application.yml).
+# 비밀번호를 걸고 싶으면 아래 command 주석을 풀고, 앱 실행 시 REDIS_PASSWORD 를 맞춰라.
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: projectmac-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    # command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
