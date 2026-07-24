@@ -39,3 +39,19 @@ Accept: application/json
 POST {{baseUrl}}/api/v1/auth/logout
 Accept: application/json
 Authorization: Bearer {{accessToken}}
+
+### 로그아웃 - Authorization 헤더 누락 (401 AUT-016 확인)
+POST {{baseUrl}}/api/v1/auth/logout
+Accept: application/json
+
+### 로그아웃 - Bearer 형식 오류 (401 AUT-016 확인, 500 아님)
+POST {{baseUrl}}/api/v1/auth/logout
+Accept: application/json
+Authorization: {{accessToken}}
+
+### CORS preflight 확인 (브라우저 없이도 OPTIONS가 인증 없이 통과하는지 확인, 200/204 기대)
+OPTIONS {{baseUrl}}/api/v1/auth/login
+Accept: application/json
+Origin: http://localhost:3000
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: content-type
