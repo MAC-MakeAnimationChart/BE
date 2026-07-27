@@ -1,6 +1,7 @@
 package com.mac.projectmac.datasource.application.service;
 
 import com.mac.projectmac.datasource.application.command.UploadDataSourceCommand;
+import com.mac.projectmac.datasource.application.port.ProjectAccessPort;
 import com.mac.projectmac.datasource.application.port.StoreDataSourceFilePort;
 import com.mac.projectmac.datasource.application.usecase.DeleteDataSourceUseCase;
 import com.mac.projectmac.datasource.application.usecase.UploadDataSourceUseCase;
@@ -9,6 +10,7 @@ import com.mac.projectmac.datasource.domain.model.DataSource;
 import com.mac.projectmac.datasource.domain.model.StoredFile;
 import com.mac.projectmac.datasource.domain.repository.DataSourceRepository;
 import com.mac.projectmac.global.domain.common.error.exception.ExternalServiceException;
+import com.mac.projectmac.global.domain.common.error.exception.ForbiddenException;
 import com.mac.projectmac.global.domain.common.error.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.time.Clock;
-import java.time.Instant;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -28,33 +29,64 @@ public class DataSourceCommandService
 
     private final StoreDataSourceFilePort storeFilePort;
     private final DataSourceRepository dataSourceRepository;
-    private final Clock clock;
+    private final ProjectAccessPort projectAccessPort;
 
     @Override
-    public DataSource upload(UploadDataSourceCommand command) {
+    public Result upload(UploadDataSourceCommand command) {
+        validateOwnedProject(command.projectId(), command.userId());
+
         StoredFile stored = storeFile(command);
 
-        DataSource dataset = DataSource.createActive(command.ownerId(), stored);
-
+        Optional<DataSource> existing = dataSourceRepository.findByProjectId(command.projectId());
+        String oldFilePath = null;
+        DataSource saved;
+        boolean created;
         try {
-            return dataSourceRepository.save(dataset);
+            if (existing.isPresent()) {
+                DataSource dataSource = existing.get();
+                oldFilePath = dataSource.getFilePath();
+                dataSource.replaceFile(stored);
+                saved = dataSourceRepository.save(dataSource);
+                created = false;
+            } else {
+                saved = dataSourceRepository.save(DataSource.create(command.projectId(), stored));
+                created = true;
+            }
         } catch (RuntimeException e) {
-            // 보상: DB 저장 실패 시 이미 업로드된 파일을 best-effort 로 삭제해 고아 파일을 방지한다.
+            // 보상: DB 저장 실패 시 방금 업로드한 새 파일을 best-effort 로 삭제한다.
             storeFilePort.delete(stored.objectPath());
             throw e;
         }
+
+        // 교체 성공 시 구 파일을 best-effort 로 정리한다.
+        if (oldFilePath != null) {
+            storeFilePort.delete(oldFilePath);
+        }
+
+        return new Result(saved, created);
     }
 
     @Override
-    public void delete(Long dataSourceId) {
-        DataSource dataset = dataSourceRepository.findActiveById(dataSourceId)
+    public void delete(Long userId, Long projectId) {
+        validateOwnedProject(projectId, userId);
+
+        DataSource dataSource = dataSourceRepository.findByProjectId(projectId)
                 .orElseThrow(() -> new NotFoundException(DataSourceErrorCode.NOT_FOUND));
 
-        dataset.softDelete(Instant.now(clock));
-        dataSourceRepository.save(dataset);
+        dataSourceRepository.deleteByProjectId(projectId);
 
-        // 소프트 삭제 커밋 이후 스토리지의 실제 파일도 best-effort 로 제거한다.
-        storeFilePort.delete(dataset.getFilePath());
+        // 하드 삭제 후 스토리지의 실제 파일도 best-effort 로 제거한다.
+        storeFilePort.delete(dataSource.getFilePath());
+    }
+
+    // 인증 사용자가 프로젝트의 소유자인지 검증한다 (없음 404 / 남의 것 403).
+    private void validateOwnedProject(Long projectId, Long userId) {
+        if (!projectAccessPort.projectExists(projectId)) {
+            throw new NotFoundException(DataSourceErrorCode.PROJECT_NOT_FOUND);
+        }
+        if (!projectAccessPort.isProjectOwnedBy(projectId, userId)) {
+            throw new ForbiddenException(DataSourceErrorCode.PROJECT_FORBIDDEN);
+        }
     }
 
     private StoredFile storeFile(UploadDataSourceCommand command) {

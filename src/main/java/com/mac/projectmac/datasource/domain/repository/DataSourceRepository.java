@@ -2,17 +2,19 @@ package com.mac.projectmac.datasource.domain.repository;
 
 import com.mac.projectmac.datasource.domain.model.DataSource;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface DataSourceRepository {
 
-    // 데이터소스 도메인 객체를 저장(신규/변경)한다.
-    DataSource save(DataSource dataset);
+    // 데이터소스 도메인 객체를 저장(신규/교체)한다.
+    DataSource save(DataSource dataSource);
 
-    // 활성(ACTIVE) 데이터소스를 id 로 조회한다.
-    Optional<DataSource> findActiveById(Long id);
+    // 프로젝트의 데이터소스를 조회한다 (1:1).
+    Optional<DataSource> findByProjectId(Long projectId);
 
-    // 활성(ACTIVE) 데이터소스를 최신순으로 조회한다.
-    List<DataSource> findAllActive();
+    // 프로젝트에 데이터소스가 존재하는지 확인한다.
+    boolean existsByProjectId(Long projectId);
+
+    // 프로젝트의 데이터소스를 삭제한다 (하드 삭제).
+    void deleteByProjectId(Long projectId);
 }

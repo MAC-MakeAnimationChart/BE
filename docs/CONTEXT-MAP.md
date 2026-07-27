@@ -10,7 +10,7 @@
 | 도메인 | 소유(한 줄) | 상태 |
 |--------|------------|------|
 | `chart.option` | 프로젝트별 차트 옵션(차트 타입·데이터 매핑·스타일) 최초 생성·조회·저장 | 구현됨 |
-| `datasource` | 데이터소스 파일 업로드·스토리지 저장·`DataSource` 메타 관리 | 구현됨(UPLOAD만) |
+| `datasource` | 프로젝트당 1개 데이터소스 파일 업로드·교체·삭제, 스토리지 저장·`DataSource` 메타 관리 | 구현됨 (프로젝트 1:1) |
 | `project` | 프로젝트 | 미구현(도메인 모델·엔티티 없음, `ProjectErrorCode`만 존재) |
 | `auth` | 인증·로그인 (예정) | 미구현(코드 없음, readme 플레이스홀더) |
 | `user` | 사용자 계정·소유자 (예정) | 미구현(코드 없음, readme 플레이스홀더) |
@@ -25,10 +25,8 @@
 |--------|------|------|
 | `chart.option` | `ChartOption` | `projectId` + `chartType` + `dataMapping`(JSON) + `styleOption`(JSON). 최초 생성 시 매핑/스타일은 `null` |
 | `chart.option` | `ChartType` | `BAR, BAR_RACE, BAR_GROUPED, BAR_STACKED, LINE, AREA, DONUT, PIE, WORD_CLOUD, METRIC_CARD, TREEMAP, SCATTER` (12종) |
-| `datasource` | `DataSource` | `ownerId`·`projectId`·`sourceType`·`fileName`·`filePath`·`status` 등 업로드 메타 |
-| `datasource` | `SourceType` | `UPLOAD, CLIPBOARD, SAMPLE` (현재 `UPLOAD`만 처리) |
-| `datasource` | `SourceStatus` | `PENDING, PARSING, COMPLETED, FAILED` |
-| `datasource` | `StoredFile` | 스토리지에 저장된 파일 정보(경로·URL·크기 등) |
+| `datasource` | `DataSource` | 프로젝트 1:1 데이터소스 메타(`projectId`·`fileName`·`storedFileName`·`fileUrl`·`filePath`·`fileSize`·`mimeType`). 소유자는 `project.user_id`로 판단 (별도 `ownerId` 없음), 하드 삭제 |
+| `datasource` | `StoredFile` | 스토리지에 저장된 파일 결과 정보(경로·URL·크기·타입 등) |
 
 ## Relationships (의존 방향: 호출하는 쪽 → 호출되는 쪽)
 
@@ -37,6 +35,7 @@
 
 - `chart.option` → `project` [포트] — 프로젝트 존재 확인 (`ProjectExistencePort`).
   - 현재 구현(`ProjectExistenceJpaAdapter`)은 `project` 테이블에 native query를 직접 날린다. `project` BC의 엔티티/리포지토리가 생기면 포트 호출로 교체 예정(ADR-0003 "알려진 위반").
-- `datasource` → (스토리지) [포트] — 파일 저장·삭제 (`StoreFilePort` → `GcsFileStorage` / `LocalFileStorage`). `gcp.storage.bucket` 미설정 시 로컬 저장으로 폴백.
-- `datasource` → `project`, `user` [미연결] — `DataSource`가 `projectId`·`ownerId`를 보유하나 존재/권한 검증은 아직 stub(`STUB_OWNER_ID`, TODO).
+- `datasource` → (스토리지) [포트] — 파일 저장·삭제 (`StoreDataSourceFilePort` → `GcsDataSourceStorage` / `LocalDataSourceStorage`). `gcp.storage.bucket` 미설정 시 로컬 저장으로 폴백.
+- `datasource` → `project` [포트] — 프로젝트 소유권 검증 (`ProjectAccessPort`, `project_id + user_id` native query). `data_sources.project_id`는 `UNIQUE NOT NULL FK → project ON DELETE CASCADE` (1 프로젝트 : 1 데이터소스). 프로젝트 삭제 시 CASCADE 로 함께 제거.
+  - ⚠️ CASCADE 삭제 시 스토리지 물리 파일은 앱 개입 없이 남아 **고아 파일** 발생(정리 배치/프로젝트 삭제 훅 필요, 백로그).
 - (전 도메인) → `global` — 공통 응답/예외/인프라.

@@ -1,16 +1,14 @@
 package com.mac.projectmac.datasource.infrastructure.persistence;
 
-import com.mac.projectmac.datasource.domain.model.SourceStatus;
 import com.mac.projectmac.datasource.domain.model.DataSource;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +19,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.Instant;
 
 @Entity
-@Table(name = "data_sources")
+@Table(
+        name = "data_sources",
+        uniqueConstraints = @UniqueConstraint(name = "uk_data_sources_project", columnNames = "project_id")
+)
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,7 +32,8 @@ public class DataSourceJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long ownerId;
+    @Column(name = "project_id", nullable = false)
+    private Long projectId;
 
     private String fileName;
 
@@ -47,9 +49,6 @@ public class DataSourceJpaEntity {
 
     private String mimeType;
 
-    @Enumerated(EnumType.STRING)
-    private SourceStatus status;
-
     @CreatedDate
     @Column(updatable = false)
     private Instant createdAt;
@@ -57,51 +56,43 @@ public class DataSourceJpaEntity {
     @LastModifiedDate
     private Instant updatedAt;
 
-    private Instant deletedAt;
-
     private DataSourceJpaEntity(
             Long id,
-            Long ownerId,
+            Long projectId,
             String fileName,
             String storedFileName,
             String fileUrl,
             String filePath,
             long fileSize,
             String mimeType,
-            SourceStatus status,
             Instant createdAt,
-            Instant updatedAt,
-            Instant deletedAt
+            Instant updatedAt
     ) {
         this.id = id;
-        this.ownerId = ownerId;
+        this.projectId = projectId;
         this.fileName = fileName;
         this.storedFileName = storedFileName;
         this.fileUrl = fileUrl;
         this.filePath = filePath;
         this.fileSize = fileSize;
         this.mimeType = mimeType;
-        this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.deletedAt = deletedAt;
     }
 
     // 데이터소스 도메인 객체를 JPA 엔티티로 변환한다.
-    public static DataSourceJpaEntity from(DataSource dataset) {
+    public static DataSourceJpaEntity from(DataSource dataSource) {
         return new DataSourceJpaEntity(
-                dataset.getId(),
-                dataset.getOwnerId(),
-                dataset.getFileName(),
-                dataset.getStoredFileName(),
-                dataset.getFileUrl(),
-                dataset.getFilePath(),
-                dataset.getFileSize(),
-                dataset.getMimeType(),
-                dataset.getStatus(),
-                dataset.getCreatedAt(),
-                dataset.getUpdatedAt(),
-                dataset.getDeletedAt()
+                dataSource.getId(),
+                dataSource.getProjectId(),
+                dataSource.getFileName(),
+                dataSource.getStoredFileName(),
+                dataSource.getFileUrl(),
+                dataSource.getFilePath(),
+                dataSource.getFileSize(),
+                dataSource.getMimeType(),
+                dataSource.getCreatedAt(),
+                dataSource.getUpdatedAt()
         );
     }
 
@@ -109,17 +100,15 @@ public class DataSourceJpaEntity {
     public DataSource toDomain() {
         return DataSource.restore(
                 id,
-                ownerId,
+                projectId,
                 fileName,
                 storedFileName,
                 fileUrl,
                 filePath,
                 fileSize,
                 mimeType,
-                status,
                 createdAt,
-                updatedAt,
-                deletedAt
+                updatedAt
         );
     }
 }

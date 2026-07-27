@@ -1,6 +1,8 @@
 package com.mac.projectmac.auth.infrastructure.config;
 
 import com.mac.projectmac.auth.domain.repository.TokenRepository;
+import com.mac.projectmac.auth.infrastructure.security.JwtAccessDeniedHandler;
+import com.mac.projectmac.auth.infrastructure.security.JwtAuthenticationEntryPoint;
 import com.mac.projectmac.auth.infrastructure.security.JwtAuthenticationFilter;
 import com.mac.projectmac.auth.infrastructure.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,8 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRepository tokenRepository;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -46,6 +50,10 @@ public class SecurityConfig {
                 ).permitAll()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
+            )
+            .exceptionHandling(e -> e
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler)
             )
             .addFilterBefore(
                 new JwtAuthenticationFilter(jwtTokenProvider, tokenRepository),
