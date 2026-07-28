@@ -1,0 +1,49 @@
+@baseUrl = http://localhost:8080
+
+### 사전 준비
+# ADMIN 권한 검증용 시나리오이므로, 아래를 먼저 수행한다.
+# 1) auth.http로 관리자용 계정과 대상(target) 계정을 각각 회원가입한다.
+# 2) 관리자용 계정의 role을 DB에서 'ADMIN'으로 직접 변경한다 (셀프 승급 API는 없음 — 의도된 설계).
+#    UPDATE users SET role = 'ADMIN' WHERE email = 'admin01@example.com';
+# 3) 관리자 계정으로 로그인해서 받은 accessToken을 아래 Authorization 헤더에 대입한다.
+# 4) targetUserId는 대상 계정 회원가입 응답의 userId로 대입한다.
+
+### 계정 상태 변경 - 정지 (BANNED)
+PATCH {{baseUrl}}/api/v1/admin/users/{{targetUserId}}/status
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "status": "BANNED"
+}
+
+### 계정 상태 변경 - 복구 (ACTIVE)
+PATCH {{baseUrl}}/api/v1/admin/users/{{targetUserId}}/status
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "status": "ACTIVE"
+}
+
+### 권한 없는 유저(ADMIN이 아님)로 호출 시 403 확인
+PATCH {{baseUrl}}/api/v1/admin/users/{{targetUserId}}/status
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{nonAdminAccessToken}}
+
+{
+  "status": "BANNED"
+}
+
+### 잘못된 status 값 - 400 확인
+PATCH {{baseUrl}}/api/v1/admin/users/{{targetUserId}}/status
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "status": "INVALID"
+}
