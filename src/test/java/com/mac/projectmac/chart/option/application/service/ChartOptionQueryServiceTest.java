@@ -16,6 +16,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,6 +67,18 @@ class ChartOptionQueryServiceTest {
         assertThatThrownBy(() -> chartOptionQueryService.getByProjectId(userId, projectId))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("프로젝트를 찾을 수 없습니다.");
+    }
+
+    @Test
+    void getByProjectId_throwsNotFoundWhenLoginUserDoesNotOwnProject() {
+        Long otherUserId = 200L;
+        Long projectId = 1L;
+        when(projectAccessPort.canReadProject(projectId, otherUserId)).thenReturn(false);
+
+        assertThatThrownBy(() -> chartOptionQueryService.getByProjectId(otherUserId, projectId))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("프로젝트를 찾을 수 없습니다.");
+        verify(chartOptionRepository, never()).findActiveByProjectId(projectId);
     }
 
     @Test

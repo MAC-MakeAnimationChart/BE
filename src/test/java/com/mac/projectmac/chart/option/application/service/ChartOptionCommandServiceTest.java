@@ -22,6 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,6 +78,20 @@ class ChartOptionCommandServiceTest {
         assertThatThrownBy(() -> chartOptionCommandService.register(
                 new RegisterChartOptionCommand(userId, projectId, "BAR")
         )).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void register_throwsNotFoundWhenLoginUserDoesNotOwnProject() {
+        Long otherUserId = 200L;
+        Long projectId = 1L;
+        when(projectAccessPort.canWriteProject(projectId, otherUserId)).thenReturn(false);
+
+        assertThatThrownBy(() -> chartOptionCommandService.register(
+                new RegisterChartOptionCommand(otherUserId, projectId, "BAR")
+        )).isInstanceOf(NotFoundException.class)
+                .hasMessage("프로젝트를 찾을 수 없습니다.");
+        verify(chartOptionRepository, never()).existsActiveByProjectId(projectId);
+        verify(chartOptionRepository, never()).save(any(ChartOption.class));
     }
 
     @Test
@@ -192,6 +207,27 @@ class ChartOptionCommandServiceTest {
                 new UpdateChartOptionCommand(userId, projectId, "BAR", dataMapping, null)
         )).isInstanceOf(NotFoundException.class)
                 .hasMessage("차트 옵션을 찾을 수 없습니다.");
+    }
+
+    @Test
+    void update_throwsNotFoundWhenLoginUserDoesNotOwnProject() throws Exception {
+        Long otherUserId = 200L;
+        Long projectId = 1L;
+        JsonNode dataMapping = objectMapper.readTree("""
+                {
+                  "xAxis": "month",
+                  "yAxis": ["sales"]
+                }
+                """);
+
+        when(projectAccessPort.canWriteProject(projectId, otherUserId)).thenReturn(false);
+
+        assertThatThrownBy(() -> chartOptionCommandService.update(
+                new UpdateChartOptionCommand(otherUserId, projectId, "BAR", dataMapping, null)
+        )).isInstanceOf(NotFoundException.class)
+                .hasMessage("프로젝트를 찾을 수 없습니다.");
+        verify(chartOptionRepository, never()).findActiveByProjectId(projectId);
+        verify(chartOptionRepository, never()).save(any(ChartOption.class));
     }
 
     @Test
