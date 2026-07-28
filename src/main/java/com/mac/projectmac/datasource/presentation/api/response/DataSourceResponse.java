@@ -6,22 +6,22 @@ import java.time.Instant;
 
 public record DataSourceResponse(
         Long dataSourceId,
+        Long projectId,
         String fileName,
         String fileUrl,
         long fileSize,
         String mimeType,
-        String status,
         Instant createdAt
 ) {
-    public static DataSourceResponse from(DataSource dataset) {
+    public static DataSourceResponse from(DataSource dataSource) {
         return new DataSourceResponse(
-                dataset.getId(),
-                dataset.getFileName(),
-                dataset.getFileUrl(),
-                dataset.getFileSize(),
-                dataset.getMimeType(),
-                dataset.getStatus().name(),
-                dataset.getCreatedAt()
+                dataSource.getId(),
+                dataSource.getProjectId(),
+                dataSource.getFileName(),
+                dataSource.getFileUrl(),
+                dataSource.getFileSize(),
+                dataSource.getMimeType(),
+                dataSource.getCreatedAt()
         );
     }
 }

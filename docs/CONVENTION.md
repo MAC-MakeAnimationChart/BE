@@ -19,9 +19,9 @@ MAC(Make Animation Chart) 백엔드의 글로벌 공통 구조(응답·예외·�
 | 도메인 | 접두어 | 실제 코드 |
 |--------|--------|----------|
 | `chart.option` | `CHO` | `CHO-001`(옵션 없음), `CHO-002`(미지원 차트 타입), `CHO-003`(잘못된 dataMapping), `CHO-004`(잘못된 styleOption), `CHO-409`(이미 존재) |
-| `datasource` | `DS` | `DS-001`(요청 JSON 해석 불가), `DS-002`(미지원 소스 타입), `DS-003`(업로드 파일 필요), `DS-004`(파일 저장 실패) |
+| `datasource` | `DS` | `DS-001`(업로드 파일 필요), `DS-002`(파일 저장 실패), `DS-003`(데이터소스 없음). 프로젝트 접근 실패는 `PRJ-001`(404 없음)·`PRJ-003`(403 권한없음) 재사용 |
 | `project` | `PRJ` | `PRJ-001`(프로젝트 없음) — 현재 `chart.option`의 `ChartOptionErrorCode`에 정의됨 |
-| `auth`(공통 인증) | `AUT` | `AUT-015`(403 권한 없음), `AUT-016`(401 인증 필요) — `GlobalExceptionHandler`가 발급 |
+| `auth`(공통 인증) | `AUT` | `AUT-015`(403 권한 없음), `AUT-016`(401 인증 필요) — Security 필터 단계는 `SecurityConfig`의 `JwtAuthenticationEntryPoint`/`JwtAccessDeniedHandler`가, 컨트롤러 도달 후는 `GlobalExceptionHandler`가 발급 |
 
 > ⚠️ `project.ProjectErrorCode`는 프로젝트가 아니라 **채팅방 코드(`CHT-001~003`)**를 담고 있다(타 출처 잔재, 정리 대상).
 
