@@ -40,6 +40,14 @@ dependencies {
 
     // 구글 클라우드 스토리지 (데이터셋 파일 업로드)
     implementation 'com.google.cloud:google-cloud-storage:2.68.0'
+
+    // 모니터링: Loki 로그 수집
+    implementation 'com.github.loki4j:loki-logback-appender:1.5.2'
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
+    // 모니터링: Prometheus 메트릭
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testCompileOnly 'org.projectlombok:lombok'
     testRuntimeOnly 'com.h2database:h2'
