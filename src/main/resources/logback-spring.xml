@@ -70,10 +70,27 @@
         <appender-ref ref="FILE_SLOW_QUERY"/>
     </logger>
 
+    <!-- ───────── Loki Appender (local/dev/staging 전용) ───────── -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>http://localhost:3100/loki/api/v1/push</url>
+        </http>
+        <format>
+            <label>
+                <pattern>app=projectmac,env=local,level=%level,host=${HOSTNAME:-localhost}</pattern>
+            </label>
+            <message class="com.github.loki4j.logback.JsonLayout"/>
+            <sortByTime>true</sortByTime>
+        </format>
+        <batchMaxItems>100</batchMaxItems>
+        <batchTimeoutMs>1000</batchTimeoutMs>
+    </appender>
+
     <!-- local/dev 환경 -->
     <springProfile name="local,dev">
         <root level="DEBUG">
             <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="LOKI"/>
         </root>
     </springProfile>
 

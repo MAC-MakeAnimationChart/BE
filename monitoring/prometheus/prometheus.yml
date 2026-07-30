@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: projectmac
+    metrics_path: /actuator/prometheus
+    static_configs:
+      # 로컬 Spring Boot 앱 (Docker 내부에서 호스트 머신을 가리킴)
+      - targets:
+          - host.docker.internal:8080
+    # 스크랩 타임아웃
+    scrape_timeout: 10s
